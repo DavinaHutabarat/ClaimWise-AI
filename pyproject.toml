@@ -1,0 +1,22 @@
+[project]
+name = "claimwise-ai"
+version = "0.1.0"
+description = "ClaimWise AI — Enterprise Copilot untuk Optimasi Alur Triase & Verifikasi Klaim Asuransi Kesehatan (UCS-based routing)"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "Davina Olivia", email = "davina@example.del.ac.id" },
+    { name = "Pedro", email = "pedro@example.del.ac.id" },
+    { name = "Jodi", email = "jodi@example.del.ac.id" },
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0.0"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = ["pytest>=8.0.0"]
