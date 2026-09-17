@@ -1,0 +1,3 @@
+# Dependencies inti tidak ada (hanya standard library: heapq, dataclasses, itertools)
+# Dependency ini hanya untuk testing.
+pytest>=8.0.0
