@@ -57,8 +57,8 @@ claimwise-ai/
 ├── LICENSE
 ├── .gitignore
 ├── pyproject.toml             # Dependency management (uv)
-├── ucs_search.py              # Implementasi UCS + data graf checkpoint (Jodi — AI Architect & Model Lead)
-├── test_ucs_search.py         # Unit test (Davina — QA, Evaluation & Ethics Lead)
+├── ucs_search.py              # Implementasi UCS + data graf checkpoint 
+├── test_ucs_search.py         # Unit test 
 └── docs/
     └── Laporan_Milestone1_ClaimWise.pdf
 ```
@@ -88,9 +88,9 @@ uv run pytest -v
 
 | Nama | Role | Tanggung Jawab | Lokasi Kerja |
 |---|---|---|---|
-| Jodi | AI Architect & Model Lead | Desain graf checkpoint klaim, implementasi algoritma UCS (`ucs_search.py`) | Lokal → push ke root repo |
-| Davina | Data & Knowledge Engineer | Validasi & penyusunan data graf (biaya/waktu tiap checkpoint) | Lokal → push ke repo (`data/`) |
-| Davina | QA, Evaluation & Ethics Lead | Penulisan `test_ucs_search.py`, eksekusi `uv run pytest`, penulisan bagian etika laporan | Lokal + dokumen laporan |
+| Davina | AI Architect & Model Lead | Desain graf checkpoint klaim, implementasi algoritma UCS (`ucs_search.py`) | Lokal → push ke root repo |
+| Jodi | Data & Knowledge Engineer | Validasi & penyusunan data graf (biaya/waktu tiap checkpoint) | Lokal → push ke repo (`data/`) |
+| Pedro | QA, Evaluation & Ethics Lead | Penulisan `test_ucs_search.py`, eksekusi `uv run pytest`, penulisan bagian etika laporan | Lokal + dokumen laporan |
 | Pedro | Integration & Interface Engineer | Penyusunan README, LICENSE, `.gitignore`, `pyproject.toml`, menjaga keseimbangan commit history | GitHub |
 | Semua | — | Mengisi tautan repo & commit di laporan, review bersama, export PDF, upload ke ECourse | Dokumen laporan bersama |
 
