@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Laporan Tugas 1 Milestone 1 - ClaimWise AI (Institut Teknologi Del)</title>
+<style>
+  @media print {
+    @page {
+      size: A4;
+      margin: 20mm 15mm 20mm 15mm;
+    }
+    body {
+      font-size: 11pt;
+      color: #000;
+    }
+    .no-print {
+      display: none !important;
+    }
+    h1, h2, h3 {
+      page-break-after: avoid;
+    }
+    table, pre, blockquote {
+      page-break-inside: avoid;
+    }
+  }
+
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    color: #24292e;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px 20px;
+    background-color: #fff;
+  }
+
+  .banner {
+    background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%);
+    color: white;
+    padding: 24px 30px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+  }
+  .banner h1 { margin: 0 0 8px 0; font-size: 24px; color: #fff; text-align: center; }
+  .banner h2 { margin: 0 0 12px 0; font-size: 17px; font-weight: normal; color: #e3f2fd; text-align: center; }
+  .banner p { margin: 4px 0; font-size: 13px; text-align: center; color: #bbdefb; }
+
+  .meta-box {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-left: 5px solid #1976d2;
+    padding: 15px 20px;
+    border-radius: 4px;
+    margin-bottom: 25px;
+    font-size: 13px;
+  }
+
+  h1 { font-size: 20pt; border-bottom: 2px solid #1976d2; padding-bottom: 6px; margin-top: 24pt; color: #0d47a1; }
+  h2 { font-size: 15pt; border-bottom: 1px solid #dee2e6; padding-bottom: 5px; margin-top: 18pt; color: #1565c0; }
+  h3 { font-size: 12pt; margin-top: 14pt; color: #283593; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0 20px 0;
+    font-size: 10.5pt;
+  }
+  th, td {
+    border: 1px solid #cfd8dc;
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background-color: #eceff1;
+    color: #263238;
+    font-weight: 600;
+  }
+  tr:nth-child(even) {
+    background-color: #fcfcfc;
+  }
+
+  code {
+    font-family: 'Consolas', 'Courier New', monospace;
+    background-color: #f1f3f5;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 10pt;
+    color: #c7254e;
+  }
+  pre {
+    background-color: #212529;
+    color: #f8f9fa;
+    padding: 14px 18px;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 9.5pt;
+    line-height: 1.45;
+  }
+  pre code {
+    background-color: transparent;
+    color: inherit;
+    padding: 0;
+  }
+
+  .badge-btn {
+    display: inline-block;
+    background-color: #28a745;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+  }
+  .badge-btn:hover {
+    background-color: #218838;
+  }
+
+  .proof-box {
+    background-color: #e8f5e9;
+    border: 1px solid #c8e6c9;
+    border-left: 5px solid #2e7d32;
+    padding: 12px 18px;
+    margin: 15px 0;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="no-print" style="margin-bottom: 20px; text-align: right;">
+  <button class="badge-btn" onclick="window.print()">🖨️ Cetak / Simpan sebagai PDF (Grup01-Tugas01.pdf)</button>
+</div>
+
+<div class="banner">
+  <h1>INSTITUT TEKNOLOGI DEL</h1>
+  <h2>FAKULTAS INFORMATIKA DAN TEKNIK ELEKTRO — PROGRAM STUDI SARJANA SISTEM INFORMASI</h2>
+  <p><strong>Mata Kuliah:</strong> 10S3001 - Kecerdasan Buatan (+P) | Semester Gasal 2026/2027</p>
+  <p><strong>Penugasan:</strong> Tugas 1 (Milestone 1 - W02) — Business Problem Framing, PEAS, & Inisialisasi Repositori</p>
+</div>
+
+<div class="meta-box">
+  <p><strong>Judul Proyek:</strong> ClaimWise AI — Enterprise Copilot untuk Optimasi Alur Triase & Verifikasi Klaim Asuransi Kesehatan</p>
+  <p><strong>Dosen Pengampu:</strong> Samuel Indra Gunawan Situmeang</p>
+  <p><strong>Tautan Repositori GitHub:</strong> <a href="https://github.com/DavinaHutabarat/ClaimWise-AI" target="_blank">https://github.com/DavinaHutabarat/ClaimWise-AI</a></p>
+  <p><strong>Format Berkas Serahan:</strong> Grup01-Tugas01.pdf</p>
+</div>
+
+<h2>IDENTITAS TIM & DISTRIBUSI PERAN PROFESIONAL (PjBL)</h2>
+<table>
+  <thead>
+    <tr>
+      <th>No</th>
+      <th>NIM</th>
+      <th>Nama Mahasiswa</th>
+      <th>Peran Enterprise AI (Panduan PjBL)</th>
+      <th>Tanggung Jawab Utama</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>12S23001</td>
+      <td><strong>Davina Olivia Yosefanny Hutabarat</strong></td>
+      <td><strong>QA, Evaluation & Ethics Lead</strong></td>
+      <td>Validasi integritas data graf biaya riil, perancangan skrip uji otomatis <code>pytest</code>, audit etika AI & kepatuhan UU PDP No. 27/2022.</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>12S23002</td>
+      <td><strong>Jodi</strong></td>
+      <td><strong>AI Architect & Model Lead</strong></td>
+      <td>Formulasi formal ruang keadaan (X, A, T, G, C), perancangan fungsi heuristik h(n), implementasi algoritma UCS & A* Search (<code>ucs_search.py</code>).</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>12S23003</td>
+      <td><strong>Pedro Simangunsong</strong></td>
+      <td><strong>Integration & Interface Engineer</strong></td>
+      <td>Standarisasi repositori & konfigurasi modern Astral <code>uv</code> (<code>pyproject.toml</code>), dokumentasi profesional <code>README.md</code>, manajemen dependensi.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>1. BUSINESS PROBLEM FRAMING & KARAKTERISTIK BISNIS</h2>
+<h3>1.1 Profil Organisasi Enterprise</h3>
+<p><strong>PT Asuransi Sehat Sejahtera Tbk (HealthCare Shield Enterprise)</strong> merupakan perusahaan asuransi kesehatan swasta berskala nasional dengan lebih dari 3,5 juta pemegang polis aktif dan kemitraan dengan 1.800+ rumah sakit/klinik di Indonesia. Perusahaan mengelola rata-rata 45.000 klaim per bulan dengan perputaran dana klaim mencapai Rp 180 Miliar per kuartal.</p>
+
+<h3>1.2 Analisis Pain Points Bisnis Kuantitatif</h3>
+<ol>
+  <li><strong>Bottleneck Triase Manual & Pelanggaran SLA:</strong> Seluruh klaim dialirkan melalui tahapan manual berjenjang yang sama, menyebabkan rata-rata waktu penyelesaian klaim membengkak hingga <strong>16,8 hari kerja</strong>, melanggar ketentuan OJK (POJK No. 69/POJK.05/2016 maksimal 14 hari).</li>
+  <li><strong>Tingginya Biaya Operasional Penanganan Klaim (Handling Cost):</strong> Pelibatan dokter spesialis dan investigator pada seluruh klaim tanpa stratifikasi risiko menelan rata-rata <strong>Rp 145.000 per klaim</strong> (8,2% dari total beban operasional tahunan).</li>
+  <li><strong>Kebocoran Fraud (Fraud Leakage) & False Rejection:</strong> Beban kognitif verifikator yang mencapai 60–80 berkas/hari memicu kelelahan dan membuka celah klaim fiktif/ganda, dengan estimasi kebocoran klaim fraud mencapai <strong>7,4%</strong> (Rp 13,3 Miliar/tahun).</li>
+</ol>
+
+<h3>1.3 Justifikasi Pemilihan Solusi AI</h3>
+<p>Penyelesaian masalah triase manual tidak efektif menggunakan rule-engine statis karena variabilitas medis yang kompleks. Pendekatan <strong>State-Space Search (UCS & A*)</strong> memungkinkan optimasi alur keputusan berdasarkan bobot biaya riil (biaya tenaga kerja + waktu SLA). Solusi ini menjadi fondasi bagi arsitektur Copilot 5-Lapis (OCR, ChromaDB RAG, ReAct Agent Gemini 2.5 Flash, dan Gradio).</p>
+
+<h2>2. SPESIFIKASI FORMAL PEAS & SIFAT LINGKUNGAN OPERASIONAL</h2>
+<h3>2.1 Tabel Spesifikasi Formal PEAS Terukur</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Pilar PEAS</th>
+      <th>Komponen Spesifik</th>
+      <th>Spesifikasi & Target Kinerja Terukur</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Performance Measure</strong></td>
+      <td>SLA, Efisiensi Biaya, Throughput, Akurasi Fraud</td>
+      <td>
+        • ≥ 98.5% klaim selesai dalam batas SLA regulasi OJK.<br>
+        • Reduksi biaya penanganan klaim ≥ 40% (dari Rp 145.000 menjadi &lt; Rp 85.000).<br>
+        • ≥ 60% klaim risiko rendah selesai via Fast-Track dalam tempo &lt; 24 jam.<br>
+        • Presisi deteksi indikasi kecurangan ≥ 95.0%.<br>
+        • 0.0% false rejection otomatis tanpa audit verifikator manusia.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Environment</strong></td>
+      <td>Sistem & Pemangku Kepentingan</td>
+      <td>Portal klaim nasabah, SIMRS rumah sakit rekanan, basis data Core Insurance, tim dokter penasihat, auditor fraud, dan regulasi OJK.</td>
+    </tr>
+    <tr>
+      <td><strong>Actuators</strong></td>
+      <td>Mekanisme Aksi</td>
+      <td>Engine routing alur klaim (FastTrack, StandardReview, FraudInvestigation), instruksi persetujuan/penolakan, instruksi pencairan dana (Disbursement), notifikasi otomatis, dan audit logging.</td>
+    </tr>
+    <tr>
+      <td><strong>Sensors</strong></td>
+      <td>Instrumen Persepsi</td>
+      <td>Payload formulir klaim digital (API JSON), teks faktur/kuitansi hasil OCR OpenCV, kode diagnosis ICD-10, data histori klaim polis 12 bulan terakhir.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>2.2 Analisis 7 Karakteristik Lingkungan Operasional (Russell & Norvig)</h3>
+<ol>
+  <li><strong>Partially Observable:</strong> Agen tidak memiliki visibilitas lengkap atas niat nasabah atau rekam medis masa lalu yang tidak dilampirkan; persepsi terbatas pada payload berkas klaim dan basis data internal.</li>
+  <li><strong>Multi-Agent:</strong> Bersifat kooperatif terhadap nasabah sah dan dokter mitra; bersifat adversarial terhadap pelaku fraud asuransi.</li>
+  <li><strong>Stochastic (Bisnis) / Deterministic (State Space):</strong> Proses klaim riil mengandung ketidakpastian (stokastik), namun pemodelan alur verifikasi diabstraksikan menjadi fungsi transisi graf deterministik terkontrol.</li>
+  <li><strong>Sequential:</strong> Keputusan perutean di tahap awal (DocCheck, PolicyValidation) secara langsung memengaruhi state berikutnya dan akumulasi total biaya.</li>
+  <li><strong>Dynamic:</strong> Plafon polis nasabah, ketersediaan dokter verifikator, dan antrean klaim berubah terus-menerus selama agen beroperasi.</li>
+  <li><strong>Discrete:</strong> Status checkpoint, aksi routing, dan metrik biaya bernilai diskret terhitung.</li>
+  <li><strong>Known:</strong> Ketentuan SOP klaim, syarat klausul polis, dan formula biaya operasional telah diketahui dan terdefinisi dengan pasti.</li>
+</ol>
+
+<h2>3. FORMULASI FORMAL RUANG KEADAAN (X, A, T, G, C) & GRAF MASALAH</h2>
+<ul>
+  <li><strong>State Space (X):</strong> {<code>Submitted</code>, <code>DocCheck</code>, <code>PolicyValidation</code>, <code>RiskScoring</code>, <code>FastTrack</code>, <code>StandardReview</code>, <code>MedicalReview</code>, <code>ApprovalOfficer</code>, <code>FraudInvestigation</code>, <code>Disbursement</code>, <code>Rejected</code>}</li>
+  <li><strong>Action Space (A):</strong> Transisi routing keputusan ke checkpoint penerus yang valid.</li>
+  <li><strong>Transition Model (T):</strong> Fungsi deterministik berarah T(s, a) &rarr; s'.</li>
+  <li><strong>Goal Test (G):</strong> State terminasi s &isin; {<code>Disbursement</code>, <code>Rejected</code>}.</li>
+  <li><strong>Path Cost Function (C):</strong> c(s, s') = (Biaya_Staf_IDR / 50.000) + (Estimasi_SLA_Hari &times; 0.5) &ge; 1.0 &gt; 0.</li>
+</ul>
+
+<h3>Tabel Rincian Bobot Operasional Riil Graf Keputusan</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Edge Transisi (u &rarr; v)</th>
+      <th>Biaya Staf (IDR)</th>
+      <th>Estimasi SLA</th>
+      <th>Bobot (c)</th>
+      <th>Justifikasi Operasional & Kriteria Bisnis</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>Submitted</code> &rarr; <code>DocCheck</code></td><td>Rp 25.000</td><td>4 Jam (0.17 Hari)</td><td><strong>1.0</strong></td><td>Ekstraksi OCR dan kelengkapan formulir digital</td></tr>
+    <tr><td><code>DocCheck</code> &rarr; <code>PolicyValidation</code></td><td>Rp 50.000</td><td>8 Jam (0.33 Hari)</td><td><strong>2.0</strong></td><td>Validasi keaktifan polis, masa tunggu, dan limit plafon</td></tr>
+    <tr><td><code>PolicyValidation</code> &rarr; <code>RiskScoring</code></td><td>Rp 50.000</td><td>8 Jam (0.33 Hari)</td><td><strong>2.0</strong></td><td>Kalkulasi skor risiko klaim berbasis analitik prediktif</td></tr>
+    <tr><td><code>RiskScoring</code> &rarr; <code>FastTrack</code></td><td>Rp 50.000</td><td>4 Jam (0.17 Hari)</td><td><strong>3.0</strong></td><td>Alokasi jalur cepat untuk klaim risiko rendah nominal kecil</td></tr>
+    <tr><td><code>RiskScoring</code> &rarr; <code>StandardReview</code></td><td>Rp 150.000</td><td>24 Jam (1.0 Hari)</td><td><strong>5.0</strong></td><td>Alokasi verifikasi standar untuk kasus tindakan medis terencana</td></tr>
+    <tr><td><code>RiskScoring</code> &rarr; <code>FraudInvestigation</code></td><td>Rp 350.000</td><td>48 Jam (2.0 Hari)</td><td><strong>9.0</strong></td><td>Alokasi investigasi mendalam akibat indikasi anomali</td></tr>
+    <tr><td><code>FastTrack</code> &rarr; <code>Disbursement</code></td><td>Rp 25.000</td><td>4 Jam (0.17 Hari)</td><td><strong>1.0</strong></td><td>Instruksi transfer pencairan dana instan ke rekening nasabah</td></tr>
+    <tr><td><code>StandardReview</code> &rarr; <code>MedicalReview</code></td><td>Rp 125.000</td><td>16 Jam (0.67 Hari)</td><td><strong>4.0</strong></td><td>Telaah kesesuaian medis oleh dokter penasihat independen</td></tr>
+    <tr><td><code>MedicalReview</code> &rarr; <code>ApprovalOfficer</code></td><td>Rp 100.000</td><td>12 Jam (0.50 Hari)</td><td><strong>3.0</strong></td><td>Validasi akuntansi dan otorisasi batas wewenang persetujuan</td></tr>
+    <tr><td><code>ApprovalOfficer</code> &rarr; <code>Disbursement</code></td><td>Rp 25.000</td><td>4 Jam (0.17 Hari)</td><td><strong>1.0</strong></td><td>Eksekusi pencairan dana pasca persetujuan pejabat berwenang</td></tr>
+    <tr><td><code>FraudInvestigation</code> &rarr; <code>ApprovalOfficer</code></td><td>Rp 200.000</td><td>24 Jam (1.0 Hari)</td><td><strong>6.0</strong></td><td>Rekomendasi persetujuan setelah anomali terklarifikasi sah</td></tr>
+    <tr><td><code>FraudInvestigation</code> &rarr; <code>Rejected</code></td><td>Rp 75.000</td><td>8 Jam (0.33 Hari)</td><td><strong>2.0</strong></td><td>Penerbitan surat penolakan resmi atas temuan konfirmasi fraud</td></tr>
+  </tbody>
+</table>
+
+<h2>4. IMPLEMENTASI ALGORITMA SEARCH & PEMBUKTIAN MATEMATIS HEURISTIK</h2>
+<h3>4.1 Sifat Heuristik untuk A* Search</h3>
+<p>Fungsi heuristik h(n) dirancang sebagai estimasi optimistik batas bawah biaya tersisa menuju goal terdekat:</p>
+<pre><code>HEURISTIC = {
+    "Submitted": 7.0, "DocCheck": 6.0, "PolicyValidation": 5.0,
+    "RiskScoring": 3.0, "FastTrack": 1.0, "StandardReview": 3.0,
+    "MedicalReview": 3.0, "ApprovalOfficer": 1.0, "FraudInvestigation": 1.0,
+    "Disbursement": 0.0, "Rejected": 0.0
+}</code></pre>
+
+<div class="proof-box">
+  <h4>Pembuktian Matematis:</h4>
+  <p><strong>1. Admisibilitas (h(n) &le; h*(n)):</strong><br>
+  Biaya riil optimal dari masing-masing node ke goal: h*(Submitted)=9.0 &ge; 7.0; h*(DocCheck)=8.0 &ge; 6.0; h*(PolicyValidation)=6.0 &ge; 5.0; h*(RiskScoring)=4.0 &ge; 3.0; h*(FastTrack)=1.0 &ge; 1.0; h*(StandardReview)=8.0 &ge; 3.0; h*(MedicalReview)=4.0 &ge; 3.0; h*(ApprovalOfficer)=1.0 &ge; 1.0; h*(FraudInvestigation)=2.0 &ge; 1.0; h*(Disbursement)=0.0; h*(Rejected)=0.0.<br>
+  <em>Kesimpulan: Seluruh state memenuhi 0 &le; h(n) &le; h*(n), sehingga terbukti <strong>Admissible</strong>.</em></p>
+
+  <p><strong>2. Konsistensi / Monotonisitas (h(n) &le; c(n, n') + h(n')):</strong><br>
+  Untuk setiap edge (n, n') dengan bobot c(n, n'), pertidaksamaan segitiga terpenuhi sempurna. Contoh:<br>
+  • Submitted &rarr; DocCheck: 7.0 &le; 1.0 + 6.0 = 7.0 (Terpenuhi)<br>
+  • DocCheck &rarr; PolicyValidation: 6.0 &le; 2.0 + 5.0 = 7.0 (Terpenuhi)<br>
+  • RiskScoring &rarr; FastTrack: 3.0 &le; 3.0 + 1.0 = 4.0 (Terpenuhi)<br>
+  <em>Kesimpulan: Heuristik terbukti <strong>Consistent</strong>, menjamin tidak ada simpul yang di-reopen pada Graph Search.</em></p>
+</div>
+
+<h3>4.2 Hasil Evaluasi Empiris Komparatif</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Metrik Evaluasi</th>
+      <th>Uniform Cost Search (UCS)</th>
+      <th>A* Search (Informed)</th>
+      <th>Status Evaluasi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Jalur Optimal</strong></td>
+      <td>Submitted &rarr; DocCheck &rarr; PolicyValidation &rarr; RiskScoring &rarr; FastTrack &rarr; Disbursement</td>
+      <td>Submitted &rarr; DocCheck &rarr; PolicyValidation &rarr; RiskScoring &rarr; FastTrack &rarr; Disbursement</td>
+      <td>Identik (100% Cocok)</td>
+    </tr>
+    <tr>
+      <td><strong>Total Biaya</strong></td>
+      <td><strong>9.00</strong></td>
+      <td><strong>9.00</strong></td>
+      <td>Optimalitas Terjamin</td>
+    </tr>
+    <tr>
+      <td><strong>Node Diekspansi</strong></td>
+      <td>6 state</td>
+      <td>6 state</td>
+      <td>Sempurna</td>
+    </tr>
+    <tr>
+      <td><strong>Peak Frontier</strong></td>
+      <td>3 state</td>
+      <td>3 state</td>
+      <td>Efisiensi Memori Tinggi</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>5. STANDAR REKAYASA PERANGKAT LUNAK & HASIL PENGUJIAN OTOMATIS</h2>
+<p>Proyek dikelola menggunakan manajer paket modern <strong>Astral uv</strong> (<code>pyproject.toml</code>) dan seluruh rangkaian logika diuji menggunakan <strong>pytest</strong>:</p>
+<pre><code>============================= test session starts =============================
+platform win32 -- Python 3.11.16, pytest-9.1.1, pluggy-1.6.0
+collected 14 items
+
+test_ucs_search.py::test_finds_a_path_to_disbursement PASSED             [  7%]
+test_ucs_search.py::test_picks_the_cheapest_route_not_just_any_route PASSED [ 14%]
+test_ucs_search.py::test_astar_finds_identical_optimal_path PASSED       [ 21%]
+test_ucs_search.py::test_compare_searches_utility PASSED                 [ 28%]
+test_ucs_search.py::test_heuristic_is_admissible PASSED                  [ 35%]
+test_ucs_search.py::test_heuristic_is_consistent_monotonic PASSED        [ 42%]
+test_ucs_search.py::test_heuristic_goal_states_are_zero PASSED           [ 50%]
+test_ucs_search.py::test_all_edge_weights_are_strictly_positive PASSED   [ 57%]
+test_ucs_search.py::test_goal_state_has_no_outgoing_edges PASSED         [ 64%]
+test_ucs_search.py::test_cost_breakdown_matches_graph_weights PASSED     [ 71%]
+test_ucs_search.py::test_unreachable_goal_returns_none PASSED            [ 78%]
+test_ucs_search.py::test_target_specific_fraud_rejection PASSED          [ 85%]
+test_ucs_search.py::test_cycle_resistance_explored_set PASSED            [ 92%]
+test_ucs_search.py::test_negative_edge_weight_raises_error PASSED        [100%]
+
+============================== 14 passed in 0.03s ==============================</code></pre>
+
+<h2>6. ETIKA AI & KEPATUHAN TATA KELOLA DATA (UU PDP NO. 27/2022)</h2>
+<ul>
+  <li><strong>Minimisasi Data (Pasal 4 & 28 UU PDP):</strong> Hanya atribut data klaim medis esensial yang diproses dalam kalkulasi penelusuran ruang keadaan.</li>
+  <li><strong>Transparansi & Auditabilitas (Pasal 20 UU PDP):</strong> Alur verifikasi graf keputusan bersifat deterministik dan dapat diaudit penuh (*explainable decision routing*).</li>
+  <li><strong>Human-in-the-Loop (SE Menkominfo No. 9/2023):</strong> Seluruh rekomendasi penolakan klaim (<code>Rejected</code>) wajib diverifikasi dan disetujui secara manual oleh verifikator manusia (*Approval Officer*) guna mencegah kesalahan sistem yang merugikan nasabah beritikad baik.</li>
+</ul>
+
+<hr>
+<p style="text-align: center; font-size: 11px; color: #6c757d;">
+  Dokumen Laporan Resmi Tugas 1 (Milestone 1 - W02) &bull; Institut Teknologi Del &bull; ClaimWise AI 2026
+</p>
+
+</body>
+</html>
