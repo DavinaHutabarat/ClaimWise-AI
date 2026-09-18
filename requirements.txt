@@ -1,3 +1,5 @@
-# Dependencies inti tidak ada (hanya standard library: heapq, dataclasses, itertools)
-# Dependency ini hanya untuk testing.
+# ClaimWise AI — Environment Dependencies
+# Core search module runs on Python Standard Library (heapq, dataclasses, itertools, typing).
+# Automated testing framework:
 pytest>=8.0.0
+

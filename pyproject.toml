@@ -1,14 +1,22 @@
 [project]
 name = "claimwise-ai"
 version = "0.1.0"
-description = "ClaimWise AI — UCS-based claim triage routing"
+description = "ClaimWise AI — Enterprise Copilot untuk Optimasi Alur Triase dan Verifikasi Klaim Asuransi Kesehatan Berbasis Algoritma Search (UCS & A*)"
 readme = "README.md"
 requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Davina Olivia Yosefanny Hutabarat" },
+    { name = "Pedro Simangunsong" },
+    { name = "Jodi" }
+]
+keywords = ["artificial-intelligence", "uniform-cost-search", "astar-search", "insurance-claim", "health-insurance", "state-space-search"]
 dependencies = []
 
-[project.optional-dependencies]
-dev = ["pytest>=8.0.0"]
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+]
 
 [tool.uv]
 package = false
-dev-dependencies = ["pytest>=8.0.0"]
