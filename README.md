@@ -1,7 +1,5 @@
 # ClaimWise AI
 
-<div align="center">
-
 **Enterprise AI Copilot untuk Optimasi Alur Triase dan Verifikasi Klaim Asuransi Kesehatan Berbasis Algoritma Search (Uniform Cost Search & A* Search)**
 
 
@@ -17,24 +15,8 @@
 >                           4.QA, Evaluation & Ethics Lead: Pedro Simangunsong / 12S24011
 
 
-</div>
 
 ---
-
-## 📌 Daftar Isi
-1. [Ringkasan Eksekutif & Latar Belakang](#1-ringkasan-eksekutif--latar-belakang)
-2. [Spesifikasi Arsitektur Sistem 5-Lapis](#2-spesifikasi-arsitektur-sistem-5-lapis)
-3. [Spesifikasi Formal PEAS](#3-spesifikasi-formal-peas)
-4. [Karakteristik Lingkungan Operasional (7 Sifat Russell & Norvig)](#4-karakteristik-lingkungan-operasional-7-sifat-russell--norvig)
-5. [Formulasi Ruang Keadaan (State-Space Model: X, A, T, G, C)](#5-formulasi-ruang-keadaan-state-space-model-x-a-t-g-c)
-6. [Topologi Graf Triase & Justifikasi Biaya Riil](#6-topologi-graf-triase--justifikasi-biaya-riil)
-7. [Algoritma Search & Pembuktian Matematis Heuristik](#7-algoritma-search--pembuktian-matematis-heuristik)
-8. [Struktur Repositori](#8-struktur-repositori)
-9. [Instalasi & Panduan Reproduksi (Astral uv)](#9-instalasi--panduan-reproduksi-astral-uv)
-10. [Hasil Pengujian Otomatis (pytest)](#10-hasil-pengujian-otomatis-pytest)
-11. [Distribusi Peran Tim (PjBL)](#11-distribusi-peran-tim-pjbl)
-12. [Kepatuhan Etika AI & Tata Kelola Data](#12-kepatuhan-etika-ai--tata-kelola-data)
-13. [Lisensi](#13-lisensi)
 
 ---
 
