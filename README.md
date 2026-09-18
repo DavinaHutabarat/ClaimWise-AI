@@ -4,11 +4,7 @@
 
 **Enterprise AI Copilot untuk Optimasi Alur Triase dan Verifikasi Klaim Asuransi Kesehatan Berbasis Algoritma Search (Uniform Cost Search & A* Search)**
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![Package Manager: uv](https://img.shields.io/badge/uv-Astral-purple.svg)](https://github.com/astral-sh/uv)
-[![Test Suite: pytest](https://img.shields.io/badge/pytest-14%20passed-brightgreen.svg)](https://docs.pytest.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Academic: IT Del](https://img.shields.io/badge/IT%20Del-10S3001%20AI-red.svg)](https://www.del.ac.id/)
+
 
 > **Tugas 1 (Milestone 1 - W02) — Milestone Proyek Terpadu (PjBL)**  
 > Mata Kuliah: 10S3001 Kecerdasan Buatan (+P) | Semester Gasal 2026/2027  
