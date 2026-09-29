@@ -9,9 +9,9 @@ Deskripsi Modul:
 ----------------
 Modul ini mengintegrasikan dua komponen AI utama:
 1. Machine Learning Classifier (Predictive AI) — Memprediksi tingkat risiko klaim
-   (Low Risk, Medium Risk, High Risk) berdasarkan atribut berkas/fitur input.
-2. Search Algorithms (UCS & A*) — Menemukan rute verifikasi dinamis berbiaya
-   operasional & SLA terendah dari state 'Submitted' hingga Goal State.
+   serta skor probabilitas multi-faktor berdasarkan fitur klaim.
+2. Search Algorithms (UCS & A*) — Menemukan rute verifikasi dinamis dari graf kompleks
+   bercabang banyak untuk mencari rute berbiaya operasional & SLA terendah.
 """
 
 from __future__ import annotations
@@ -22,88 +22,170 @@ from typing import Dict, List, NamedTuple, Optional, Set, Tuple
 
 
 # ---------------------------------------------------------------------------
-# 1. Component 1: Machine Learning Risk Classifier (AI Search Input Engine)
+# 1. Component 1: Machine Learning Risk Classifier (AI Multi-Factor Risk Model)
 # ---------------------------------------------------------------------------
-def predict_claim_risk(claim_features: dict) -> Tuple[str, float]:
+def predict_claim_risk(claim_features: dict) -> dict:
     """
-    Prediksi Machine Learning untuk mengklasifikasikan tingkat risiko klaim.
+    Prediksi Machine Learning untuk mengevaluasi fitur klaim multi-dimensi.
     
     Parameters:
-        claim_features (dict): Fitur atribut klaim seperti:
-            - "claim_amount_idr" (int): Nominal pengajuan klaim.
-            - "has_billing_anomaly" (bool): Indikasi anomali/red flag pada berkas tagihan.
-            - "is_emergency" (bool): Apakah tindakan bersifat darurat.
-            - "policy_active_months" (int): Durasi keaktifan polis nasabah.
+        claim_features (dict): Atribut berkas klaim.
 
     Returns:
-        Tuple[str, float]: (Tingkat Risiko Prediksi ML, Skor Kepercayaan/Confidence)
+        dict: Hasil evaluasi risiko lengkap dari model ML.
     """
     amount = claim_features.get("claim_amount_idr", 0)
     has_anomaly = claim_features.get("has_billing_anomaly", False)
     policy_months = claim_features.get("policy_active_months", 12)
+    is_frequent_claimer = claim_features.get("is_frequent_claimer", False)
+    incomplete_docs = claim_features.get("incomplete_docs", False)
 
-    # Logika Model Klasifikasi ML (Aturan Inferensi Prediktif)
-    if has_anomaly or (amount > 25_000_000 and policy_months < 3):
-        return "High Risk", 0.95
-    elif amount > 10_000_000 or (amount > 5_000_000 and policy_months < 6):
-        return "Medium Risk", 0.88
+    # Menghitung skor risiko berbobot (0.0 - 1.0)
+    risk_score = 0.1
+    if amount > 15_000_000:
+        risk_score += 0.25
+    if amount > 40_000_000:
+        risk_score += 0.35
+    if has_anomaly:
+        risk_score += 0.40
+    if policy_months < 3:
+        risk_score += 0.20
+    if is_frequent_claimer:
+        risk_score += 0.15
+
+    risk_score = min(1.0, risk_score)
+
+    if risk_score >= 0.65:
+        category = "High Risk"
+    elif risk_score >= 0.35:
+        category = "Medium Risk"
     else:
-        return "Low Risk", 0.92
+        category = "Low Risk"
+
+    return {
+        "risk_category": category,
+        "risk_score": risk_score,
+        "incomplete_docs": incomplete_docs,
+        "has_anomaly": has_anomaly,
+        "high_value": amount > 30_000_000,
+    }
 
 
 # ---------------------------------------------------------------------------
-# 2. Component 2: Dynamic Graph Builder (Mengubah Prediksi ML Menjadi Graf Ruang Keadaan)
+# 2. Component 2: Dynamic Complex Graph Builder (Banyak Percabangan Alternatif)
 # ---------------------------------------------------------------------------
-def build_dynamic_claim_graph(predicted_risk: str) -> Dict[str, List[Tuple[str, float]]]:
+def build_dynamic_claim_graph(ml_result: dict) -> Dict[str, List[Tuple[str, float]]]:
     """
-    Membangun graf ruang keadaan dinamis berdasarkan hasil prediksi Machine Learning.
-    Hal ini mencegah 'hardcoded routing' dan membiarkan AI yang menentukan percabangan.
+    Membangun graf ruang keadaan kompleks dengan BANYAK PILIHAN CABANG DINAMIS.
+    Dibuat kaya akan jalur alternatif agar algoritma Search (UCS/A*) benar-benar
+    berfungsi mengeksplorasi dan membandingkan rute termurah.
     """
-    # Graf Dasar (Pipeline Standar Intake & Pre-check)
+    category = ml_result["risk_category"]
+    score = ml_result["risk_score"]
+    incomplete_docs = ml_result["incomplete_docs"]
+    has_anomaly = ml_result["has_anomaly"]
+
+    # Inisialisasi Topologi Graf Kompleks
     graph: Dict[str, List[Tuple[str, float]]] = {
         "Submitted": [
             ("DocCheck", 1.0),
         ],
-        "DocCheck": [
-            ("PolicyValidation", 2.0),
+        "DocCheck": [],              # Opsi cabang dinamis
+        "DocRequestPending": [
+            ("DocCheck", 1.5),       # Siklus verifikasi ulang dokumen
         ],
         "PolicyValidation": [
             ("RiskScoring", 2.0),
+            ("LapseCheck", 1.5),     # Jalur verifikasi keaktifan polis khusus
         ],
-        "RiskScoring": [],  # Akan diisi secara dinamis oleh AI/ML Classifier
+        "LapseCheck": [
+            ("RiskScoring", 1.0),
+        ],
+        "RiskScoring": [],          # Opsi cabang multi-jalur hasil ML
+        
+        # Branch 1: Jalur Cepat / FastTrack
         "FastTrack": [
-            ("Disbursement", 1.0),
+            ("AutoDisbursement", 1.0),
+            ("StandardReview", 2.0), # Backup eskalasi
         ],
+        "AutoDisbursement": [
+            ("Disbursement", 0.5),
+        ],
+
+        # Branch 2: Review Standar & Klinis
         "StandardReview": [
-            ("MedicalReview", 4.0),
+            ("MedicalReview", 3.0),
+            ("HospitalCrossCheck", 4.0), # Verifikasi lapangan/RS
+            ("ApprovalOfficer", 5.0),    # Directly to approval jika dokumen jelas
         ],
-        "MedicalReview": [
+        "HospitalCrossCheck": [
+            ("MedicalReview", 2.0),
             ("ApprovalOfficer", 3.0),
         ],
+        "MedicalReview": [
+            ("SpecialistConsultation", 4.0), # Opsional konsul dokter spesialis
+            ("ApprovalOfficer", 2.5),
+        ],
+        "SpecialistConsultation": [
+            ("ApprovalOfficer", 2.0),
+        ],
+
+        # Branch 3: Investigasi Fraud & Audit Forensik
+        "FraudInvestigation": [
+            ("ForensicAudit", 5.0),
+            ("FieldInvestigation", 6.0),
+            ("LegalReview", 7.0),
+            ("ApprovalOfficer", 6.0), # Klarifikasi sah
+        ],
+        "ForensicAudit": [
+            ("ApprovalOfficer", 4.0),
+            ("Rejected", 2.0),
+        ],
+        "FieldInvestigation": [
+            ("ApprovalOfficer", 3.0),
+            ("Rejected", 1.5),
+        ],
+        "LegalReview": [
+            ("Rejected", 1.0),
+        ],
+
         "ApprovalOfficer": [
             ("Disbursement", 1.0),
+            ("Rejected", 1.0),
         ],
-        "FraudInvestigation": [
-            ("ApprovalOfficer", 6.0),     # Jalur klarifikasi jika klaim ternyata sah
-            ("Rejected", 2.0),            # Jalur penolakan jika terbukti fraud
-        ],
-        "Disbursement": [],  # Terminal Goal State
-        "Rejected": [],      # Terminal Goal State
+        "Disbursement": [], # Terminal Goal State
+        "Rejected": [],     # Terminal Goal State
     }
 
-    # Penentuan Percabangan Dinamis Berdasarkan Hasil Prediksi AI ML
-    if predicted_risk == "Low Risk":
-        # AI mengarahkan klaim berisiko rendah ke jalur cepat (FastTrack)
-        graph["RiskScoring"].append(("FastTrack", 3.0))
-    elif predicted_risk == "Medium Risk":
-        # AI mengarahkan klaim berisiko sedang ke penelaahan medis standar
-        graph["RiskScoring"].append(("StandardReview", 5.0))
-    elif predicted_risk == "High Risk":
-        # AI mengarahkan klaim berisiko tinggi ke investigasi indikasi fraud
-        graph["RiskScoring"].append(("FraudInvestigation", 9.0))
+    # --- PENENTUAN PERCABANGAN DINAMIS SECARA KOMPLEKS BERDASARKAN HASIL ML ---
+
+    # 1. Cabang Dinamis pada DocCheck
+    if incomplete_docs:
+        graph["DocCheck"].append(("DocRequestPending", 2.0))
+        graph["DocCheck"].append(("PolicyValidation", 3.5)) # Tetap diberi pilihan alternatif
     else:
-        # Fallback jika klaim belum terklasifikasi
-        graph["RiskScoring"].append(("StandardReview", 5.0))
+        graph["DocCheck"].append(("PolicyValidation", 1.5))
+
+    # 2. Banyak Cabang Dinamis pada RiskScoring Berdasarkan Skor ML
+    if category == "Low Risk":
+        # Meskipun Low Risk, AI menyediakan 3 rute alternatif dengan bobot disesuaikan
+        graph["RiskScoring"].append(("FastTrack", 2.0 * score + 1.0))
+        graph["RiskScoring"].append(("StandardReview", 4.0))
+        graph["RiskScoring"].append(("HospitalCrossCheck", 6.0))
+
+    elif category == "Medium Risk":
+        # Menyediakan 4 rute pilihan verifikasi untuk dievaluasi oleh Search Algorithm
+        graph["RiskScoring"].append(("StandardReview", 3.0))
+        graph["RiskScoring"].append(("HospitalCrossCheck", 3.5))
+        graph["RiskScoring"].append(("MedicalReview", 4.5))
+        if not has_anomaly:
+            graph["RiskScoring"].append(("FastTrack", 5.5)) # Pilihan shortcut berbiaya tinggi
+
+    elif category == "High Risk":
+        # Menyediakan rute-rute investigasi berjenjang
+        graph["RiskScoring"].append(("FraudInvestigation", 2.0))
+        graph["RiskScoring"].append(("HospitalCrossCheck", 4.0))
+        graph["RiskScoring"].append(("StandardReview", 7.0))
 
     return graph
 
@@ -112,15 +194,23 @@ def build_dynamic_claim_graph(predicted_risk: str) -> Dict[str, List[Tuple[str, 
 # 3. Data Structure & Heuristic Specifications
 # ---------------------------------------------------------------------------
 HEURISTIC: Dict[str, float] = {
-    "Submitted": 7.0,
-    "DocCheck": 6.0,
-    "PolicyValidation": 5.0,
+    "Submitted": 6.0,
+    "DocCheck": 5.0,
+    "DocRequestPending": 5.5,
+    "PolicyValidation": 4.0,
+    "LapseCheck": 4.5,
     "RiskScoring": 3.0,
-    "FastTrack": 1.0,
+    "FastTrack": 1.5,
+    "AutoDisbursement": 0.5,
     "StandardReview": 3.0,
-    "MedicalReview": 3.0,
+    "HospitalCrossCheck": 3.5,
+    "MedicalReview": 2.5,
+    "SpecialistConsultation": 2.0,
+    "FraudInvestigation": 3.0,
+    "ForensicAudit": 2.0,
+    "FieldInvestigation": 1.5,
+    "LegalReview": 1.0,
     "ApprovalOfficer": 1.0,
-    "FraudInvestigation": 1.0,
     "Disbursement": 0.0,
     "Rejected": 0.0,
 }
@@ -250,27 +340,24 @@ def astar_search(
 # ---------------------------------------------------------------------------
 def process_claim_pipeline(claim_id: str, claim_features: dict) -> None:
     """
-    Pipeline lengkap pengolahan klaim:
-    1. Prediksi Tingkat Risiko oleh Machine Learning.
-    2. Pembuatan Graf Dinamis.
-    3. Pencarian Rute Optimal Menggunakan UCS & A* Search.
+    Pipeline pengolahan klaim: Evaluasi ML -> Graf Dinamis Banyak Percabangan -> UCS & A*.
     """
-    print("=" * 72)
+    print("=" * 75)
     print(f" PEMROSESAN KLAIM ASURANSI: {claim_id}")
-    print("=" * 72)
+    print("=" * 75)
     print("Fitur Berkas Input:")
     for k, v in claim_features.items():
         print(f"  • {k:<22}: {v}")
 
     # Step 1: Prediksi Machine Learning
-    predicted_risk, confidence = predict_claim_risk(claim_features)
+    ml_result = predict_claim_risk(claim_features)
     print(f"\n[STEP 1] Hasil Prediksi Model Machine Learning:")
-    print(f"  • Tingkat Risiko : {predicted_risk}")
-    print(f"  • Confidence     : {confidence * 100:.1f}%")
+    print(f"  • Kategori Risiko  : {ml_result['risk_category']}")
+    print(f"  • Skor Risiko ML   : {ml_result['risk_score']:.2f}")
 
-    # Step 2: Pembentukan Graf Dinamis
-    dynamic_graph = build_dynamic_claim_graph(predicted_risk)
-    print(f"\n[STEP 2] Graf Ruang Keadaan Berhasil Di-generate Secara Dinamis!")
+    # Step 2: Pembentukan Graf Dinamis Bercabang Banyak
+    dynamic_graph = build_dynamic_claim_graph(ml_result)
+    print(f"\n[STEP 2] Graf Ruang Keadaan Kompleks Berhasil Di-generate!")
 
     # Step 3: Search Algorithm Execution
     start_state = "Submitted"
@@ -279,10 +366,11 @@ def process_claim_pipeline(claim_id: str, claim_features: dict) -> None:
     res_ucs = uniform_cost_search(dynamic_graph, start_state, goal_states)
     res_astar = astar_search(dynamic_graph, start_state, goal_states)
 
-    print(f"\n[STEP 3] Hasil Pencarian Rute Optimal oleh AI Search:")
+    print(f"\n[STEP 3] Hasil Eksplorasi & Pencarian Rute Optimal oleh AI Search:")
     if res_ucs and res_astar:
         print(f"  • Jalur Verifikasi : {' -> '.join(res_ucs.path)}")
         print(f"  • Total Biaya      : {res_ucs.total_cost:.2f} (terhitung)")
+        print(f"  • Node Diekspansi  : {res_ucs.nodes_expanded} state (UCS) / {res_astar.nodes_expanded} state (A*)")
         print(f"  • Status Akhir     : {res_ucs.path[-1]}")
     else:
         print("  • Gagal menemukan jalur verifikasi.")
@@ -291,21 +379,25 @@ def process_claim_pipeline(claim_id: str, claim_features: dict) -> None:
 
 def main() -> None:
     """Demonstrasi Pemrosesan Berbagai Skenario Berkas Klaim."""
-    # Skenario 1: Klaim Berisiko Rendah (Nominal Kecil, Polis Lama)
+    # Skenario 1: Low Risk (Dokumen Lengkap)
     claim_1 = {
-        "claim_amount_idr": 2_500_000,
+        "claim_amount_idr": 3_500_000,
         "has_billing_anomaly": False,
-        "policy_active_months": 18,
+        "policy_active_months": 24,
+        "is_frequent_claimer": False,
+        "incomplete_docs": False,
     }
     process_claim_pipeline("CLM-2026-001 (Risiko Rendah)", claim_1)
 
-    # Skenario 2: Klaim Berisiko Tinggi (Indikasi Anomali Tagihan)
+    # Skenario 2: High Risk (Indikasi Anomali & Dokumen Kurang)
     claim_2 = {
-        "claim_amount_idr": 45_000_000,
+        "claim_amount_idr": 55_000_000,
         "has_billing_anomaly": True,
         "policy_active_months": 2,
+        "is_frequent_claimer": True,
+        "incomplete_docs": True,
     }
-    process_claim_pipeline("CLM-2026-002 (Risiko Tinggi / Anomali)", claim_2)
+    process_claim_pipeline("CLM-2026-002 (Risiko Tinggi & Anomali)", claim_2)
 
 
 if __name__ == "__main__":
