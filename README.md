@@ -11,9 +11,7 @@
 > 2. **Pedro Simangunsong / 12S24011** — *Integration & Interface Engineer + QA, Evaluation & Ethics Lead*  
 > 3. **Jody Alfonso Siahaan / 12S24039** — *Data & Knowledge Engineer*  
 >
-> **Milestones:**  
-> &bull; [Milestone 1 (W02): Baseline Search Triase Klaim (UCS & A*)](docs/Laporan_Tugas01_ClaimWise.md)  
-> &bull; [Milestone 2 (W04): Modul Pemecahan Batasan Bisnis (Algoritma Genetika)](docs/Grup08-Tugas02.md) &bull; **PDF Laporan:** [Grup08-Tugas02.pdf](docs/Grup08-Tugas02.pdf) &bull; **Rilis:** `v0.2-milestone2`
+>
 
 ---
 
@@ -166,13 +164,6 @@ ClaimWise-AI/
 ├── test_ucs_search.py               # 23 unit test otomatis pencarian jalur (Milestone 1)
 ├── solver.py                        # Modul solver optimasi GA multi-objektif (Milestone 2)
 ├── test_solver.py                   # 22 unit test otomatis inferensi batasan & edge cases GA (Milestone 2)
-├── docs/
-│   ├── Laporan_Tugas01_ClaimWise.md # Dokumen laporan resmi Milestone 1 (W02)
-│   ├── Laporan_Tugas01_ClaimWise.html
-│   ├── Grup08-Tugas02.md            # Dokumen laporan resmi akademik Milestone 2 (W04)
-│   ├── Grup08-Tugas02.html          # Versi cetak web dokumen resmi Milestone 2
-│   ├── Grup08-Tugas02.pdf           # Dokumen serahan final PDF ECourse Del
-│   └── convergence_curve.png        # Grafik kurva konvergensi resolusi tinggi (Matplotlib)
 └── README.md                        # Dokumentasi komprehensif repositori terintegrasi
 ```
 
