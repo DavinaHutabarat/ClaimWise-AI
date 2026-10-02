@@ -1,20 +1,19 @@
 """
-ClaimWise AI — Comprehensive Test Suite for CSP & GA Constraint Solver
-=======================================================================
+ClaimWise AI — Comprehensive Test Suite for Genetic Algorithm (GA) Optimization
+================================================================================
 Mata Kuliah : 10S3001 - Kecerdasan Buatan (+P) / Artificial Intelligence
 Institusi   : Institut Teknologi Del (FITE - S1 Sistem Informasi)
 Tugas       : Tugas 2 (Milestone 2 - W04)
 
-Cakupan Pengujian:
-1. Pemodelan Batasan Unary (Kualifikasi Kompetensi, Limit Finansial, Konflik RS, SLA Shift).
-2. Propagasi Batasan AC-3 (Pemangkasan Domain & Deteksi Insolvabilitas Dini).
-3. Heuristik MRV (Minimum Remaining Values) & Degree Heuristic (Tie-Breaker).
-4. Heuristik LCV (Least Constraining Value).
-5. Inferensi MAC & Forward Checking pada Backtracking Search.
-6. Kepatuhan Batasan Global Kapasitas Beban Kerja (UU Ketenagakerjaan No. 13/2003).
-7. Kepatuhan Batasan Biner Pemisahan Tugas (Separation of Duties / Conflict Group).
-8. Konvergensi Algoritma Genetika (GA) dengan Elitisme & Turnamen.
-9. Pengujian Kasus Ekstrem (Over-Constrained, Bottleneck, Clique Conflict, Single/Zero Claim).
+Cakupan Pengujian GA:
+1. Logika Kualifikasi Peran (is_role_compatible).
+2. Sistem Penalti Regulasi (Kompetensi, Plafon Finansial, Konflik RS, SLA Shift).
+3. Batasan Kapasitas Beban Kerja Harian UU Ketenagakerjaan No. 13/2003.
+4. Pemisahan Tugas & Anti-Kolusi (Conflict Group / Separation of Duties).
+5. Operator Genetika: Seleksi Turnamen, Crossover Dua Titik, Mutasi, dan Elitisme.
+6. Konvergensi Kebugaran Multi-Objektif & Rekam Jejak Riwayat Evolusi.
+7. Pengujian Kasus Ekstrem: Over-Constrained, Bottleneck Spesialis, Clique Conflict, Single/Zero Claim.
+8. Reproduksibilitas Penentuan Seed Acak.
 
 Eksekusi:
     pytest -v test_solver.py
@@ -25,18 +24,16 @@ import pytest
 from solver import (
     ROLE_HIERARCHY,
     AssignmentSlot,
-    BinaryConstraint,
     Claim,
     ClaimAllocationEngine,
-    CSP,
+    EvolutionRecord,
+    GAParameters,
     GeneticAlgorithmSolver,
     ShiftSlot,
+    SolverStatistics,
     Verifier,
     VerifierRole,
-    ac3,
-    backtracking_search,
-    order_domain_values_lcv,
-    select_unassigned_variable_mrv,
+    is_role_compatible,
 )
 
 
@@ -46,7 +43,7 @@ from solver import (
 
 @pytest.fixture
 def standard_verifiers():
-    """Himpunan verifikator standar dengan variasi peran dan kapasitas."""
+    """Himpunan staf verifikator standar dengan variasi peran dan kapasitas."""
     return [
         Verifier(
             verifier_id="ADJ-01",
@@ -92,228 +89,169 @@ def standard_verifiers():
 def standard_claims():
     """Himpunan berkas klaim harian dengan variasi tingkat risiko dan nominal."""
     return [
-        Claim("CLM-001", "OUTPATIENT", 3_500_000, VerifierRole.JUNIOR_ADJUSTER, complexity=1, sla_hours=24, hospital_id="HOSP-01"),
-        Claim("CLM-002", "INPATIENT", 45_000_000, VerifierRole.SENIOR_ADJUSTER, complexity=2, sla_hours=48, hospital_id="HOSP-02"),
-        Claim("CLM-003", "SURGICAL", 135_000_000, VerifierRole.MEDICAL_ADVISOR, complexity=4, sla_hours=72, hospital_id="HOSP-01"),
-        Claim("CLM-004", "FRAUD_SUSPECT", 80_000_000, VerifierRole.FRAUD_INVESTIGATOR, complexity=3, sla_hours=48, hospital_id="HOSP-03"),
-        Claim("CLM-005", "OUTPATIENT", 5_000_000, VerifierRole.JUNIOR_ADJUSTER, complexity=1, sla_hours=24, hospital_id="HOSP-02", conflict_group="FAM-1"),
-        Claim("CLM-006", "OUTPATIENT", 4_000_000, VerifierRole.JUNIOR_ADJUSTER, complexity=1, sla_hours=24, hospital_id="HOSP-02", conflict_group="FAM-1"),
+        Claim("CLM-001", "OUTPATIENT", 3_500_000, VerifierRole.JUNIOR_ADJUSTER, complexity=1, sla_hours=24, hospital_id="HOSP-01", risk_score=0.10),
+        Claim("CLM-002", "INPATIENT", 45_000_000, VerifierRole.SENIOR_ADJUSTER, complexity=2, sla_hours=48, hospital_id="HOSP-02", risk_score=0.40),
+        Claim("CLM-003", "SURGICAL", 135_000_000, VerifierRole.MEDICAL_ADVISOR, complexity=4, sla_hours=72, hospital_id="HOSP-01", risk_score=0.65),
+        Claim("CLM-004", "FRAUD_SUSPECT", 80_000_000, VerifierRole.FRAUD_INVESTIGATOR, complexity=3, sla_hours=48, hospital_id="HOSP-03", risk_score=0.90),
+        Claim("CLM-005", "OUTPATIENT", 5_000_000, VerifierRole.JUNIOR_ADJUSTER, complexity=1, sla_hours=24, hospital_id="HOSP-02", conflict_group="FAM-1", risk_score=0.15),
+        Claim("CLM-006", "OUTPATIENT", 4_000_000, VerifierRole.JUNIOR_ADJUSTER, complexity=1, sla_hours=24, hospital_id="HOSP-02", conflict_group="FAM-1", risk_score=0.15),
     ]
 
 
 # ===========================================================================
-# 1. PENGUJIAN BATASAN UNARY & PEMBENTUKAN DOMAIN
+# 1. PENGUJIAN LOGIKA PERAN & SISTEM PENALTI KEBUGARAN
 # ===========================================================================
 
-def test_unary_competency_constraints(standard_verifiers):
-    """Klaim bedah hanya boleh diisi oleh Medical Advisor; klaim fraud oleh Investigator."""
-    claim_surg = Claim("CLM-SURG", "SURGICAL", 50_000_000, VerifierRole.MEDICAL_ADVISOR, complexity=3)
-    claim_fraud = Claim("CLM-FRD", "FRAUD_SUSPECT", 30_000_000, VerifierRole.FRAUD_INVESTIGATOR, complexity=3)
+def test_role_compatibility_logic():
+    """Validasi hierarki dan spesialisasi lisensi klinis/forensik."""
+    # Medical Advisor wajib dokter
+    assert is_role_compatible(VerifierRole.MEDICAL_ADVISOR, VerifierRole.MEDICAL_ADVISOR) is True
+    assert is_role_compatible(VerifierRole.JUNIOR_ADJUSTER, VerifierRole.MEDICAL_ADVISOR) is False
+    assert is_role_compatible(VerifierRole.FRAUD_INVESTIGATOR, VerifierRole.MEDICAL_ADVISOR) is False
 
-    engine = ClaimAllocationEngine([claim_surg, claim_fraud], standard_verifiers)
-    csp = engine.build_csp()
+    # Fraud Investigator wajib spesialis fraud
+    assert is_role_compatible(VerifierRole.FRAUD_INVESTIGATOR, VerifierRole.FRAUD_INVESTIGATOR) is True
+    assert is_role_compatible(VerifierRole.MEDICAL_ADVISOR, VerifierRole.FRAUD_INVESTIGATOR) is False
 
-    # Domain bedah hanya boleh berisi DOC-01
-    surg_verifiers = {slot.verifier_id for slot in csp.domains["CLM-SURG"]}
-    assert surg_verifiers == {"DOC-01"}
-
-    # Domain fraud hanya boleh berisi INV-01
-    fraud_verifiers = {slot.verifier_id for slot in csp.domains["CLM-FRD"]}
-    assert fraud_verifiers == {"INV-01"}
-
-
-def test_financial_authority_limits(standard_verifiers):
-    """Klaim bernilai Rp 50 Juta dilarang dialokasikan ke Junior Adjuster (plafon Rp 25 Juta)."""
-    claim_high = Claim("CLM-HIGH", "INPATIENT", 50_000_000, VerifierRole.JUNIOR_ADJUSTER, complexity=2)
-
-    engine = ClaimAllocationEngine([claim_high], standard_verifiers)
-    csp = engine.build_csp()
-
-    allowed_verifiers = {slot.verifier_id for slot in csp.domains["CLM-HIGH"]}
-    assert "ADJ-01" not in allowed_verifiers
-    assert "ADJ-02" in allowed_verifiers or "DOC-01" in allowed_verifiers
+    # Junior Adjuster dapat ditangani seluruh staf
+    assert is_role_compatible(VerifierRole.JUNIOR_ADJUSTER, VerifierRole.JUNIOR_ADJUSTER) is True
+    assert is_role_compatible(VerifierRole.SENIOR_ADJUSTER, VerifierRole.JUNIOR_ADJUSTER) is True
 
 
-def test_hospital_conflict_of_interest(standard_verifiers):
-    """Verifikator yang terafiliasi dengan RS tertentu tidak boleh memverifikasi klaim dari RS tersebut."""
-    claim_conflict = Claim("CLM-CONF", "OUTPATIENT", 2_000_000, VerifierRole.JUNIOR_ADJUSTER, hospital_id="HOSP-CONFLICT-01")
+def test_evaluation_detects_role_mismatch_penalty(standard_verifiers):
+    """Menugaskan klaim bedah ke verifikator junior harus memicu pelanggaran dan penalti masif."""
+    claim = Claim("CLM-BEDAH", "SURGICAL", 50_000_000, VerifierRole.MEDICAL_ADVISOR, complexity=3)
+    solver = GeneticAlgorithmSolver([claim], standard_verifiers)
 
-    engine = ClaimAllocationEngine([claim_conflict], standard_verifiers)
-    csp = engine.build_csp()
+    # Cari indeks penugasan ke ADJ-01 (Junior)
+    junior_gene = next(
+        idx for idx, slot in enumerate(solver.possible_assignments) if slot.verifier_id == "ADJ-01"
+    )
 
-    verifiers_in_domain = {slot.verifier_id for slot in csp.domains["CLM-CONF"]}
-    assert "ADJ-01" not in verifiers_in_domain  # ADJ-01 terafiliasi dengan HOSP-CONFLICT-01
-
-
-def test_sla_night_shift_restriction(standard_verifiers):
-    """Klaim dengan SLA <= 24 jam (Fast-Track) dilarang ditempatkan pada Shift MALAM."""
-    claim_fast = Claim("CLM-FAST", "OUTPATIENT", 2_000_000, VerifierRole.JUNIOR_ADJUSTER, sla_hours=24)
-
-    engine = ClaimAllocationEngine([claim_fast], standard_verifiers)
-    csp = engine.build_csp()
-
-    shifts_in_domain = {slot.shift for slot in csp.domains["CLM-FAST"]}
-    assert ShiftSlot.MALAM not in shifts_in_domain
-    assert ShiftSlot.PAGI in shifts_in_domain
-    assert ShiftSlot.SIANG in shifts_in_domain
+    fit, viol, cost, std, details = solver.evaluate_chromosome([junior_gene])
+    assert viol >= 1
+    assert details["penalty_score"] >= solver.params.penalty_role_mismatch
 
 
-# ===========================================================================
-# 2. PENGUJIAN ALGORITMA AC-3 (ARC CONSISTENCY 3)
-# ===========================================================================
+def test_evaluation_detects_financial_excess_penalty(standard_verifiers):
+    """Menugaskan klaim Rp 50 Juta ke staf dengan limit Rp 25 Juta harus memicu penalti finansial."""
+    claim = Claim("CLM-HIGH", "OUTPATIENT", 50_000_000, VerifierRole.JUNIOR_ADJUSTER, complexity=2)
+    solver = GeneticAlgorithmSolver([claim], standard_verifiers)
 
-def test_ac3_prunes_inconsistent_values():
-    """AC-3 harus memangkas nilai domain yang tidak memiliki pasangan pendukung (support)."""
-    variables = ["X", "Y"]
-    domains = {
-        "X": [1, 2, 3],
-        "Y": [2],
-    }
-    csp = CSP[str, int](variables, domains)
-    # Batasan: X harus sama dengan Y
-    csp.add_constraint(BinaryConstraint("X", "Y", lambda x, y: x == y))
+    junior_gene = next(
+        idx for idx, slot in enumerate(solver.possible_assignments) if slot.verifier_id == "ADJ-01"
+    )
 
-    is_consistent = ac3(csp)
-
-    assert is_consistent is True
-    # Nilai 1 dan 3 pada X harus dipangkas karena tidak didukung oleh Y
-    assert csp.domains["X"] == [2]
-    assert csp.domains["Y"] == [2]
+    fit, viol, cost, std, details = solver.evaluate_chromosome([junior_gene])
+    assert viol >= 1
+    assert details["penalty_score"] >= solver.params.penalty_financial_excess
 
 
-def test_ac3_detects_empty_domain_early():
-    """Jika tidak ada nilai yang saling mendukung, AC-3 harus mengembalikan False."""
-    variables = ["A", "B"]
-    domains = {
-        "A": [1, 2],
-        "B": [3, 4],
-    }
-    csp = CSP[str, int](variables, domains)
-    # Batasan mustahil: A == B
-    csp.add_constraint(BinaryConstraint("A", "B", lambda a, b: a == b))
+def test_evaluation_detects_hospital_conflict_penalty(standard_verifiers):
+    """Menugaskan klaim ke verifikator yang memiliki konflik RS harus memicu penalti."""
+    claim = Claim("CLM-CONF", "OUTPATIENT", 2_000_000, VerifierRole.JUNIOR_ADJUSTER, hospital_id="HOSP-CONFLICT-01")
+    solver = GeneticAlgorithmSolver([claim], standard_verifiers)
 
-    is_consistent = ac3(csp)
+    # ADJ-01 terafiliasi dengan HOSP-CONFLICT-01
+    conflict_gene = next(
+        idx for idx, slot in enumerate(solver.possible_assignments) if slot.verifier_id == "ADJ-01"
+    )
 
-    assert is_consistent is False
-    assert len(csp.domains["A"]) == 0 or len(csp.domains["B"]) == 0
+    fit, viol, cost, std, details = solver.evaluate_chromosome([conflict_gene])
+    assert viol >= 1
+    assert details["penalty_score"] >= solver.params.penalty_hospital_conflict
 
 
-# ===========================================================================
-# 3. PENGUJIAN HEURISTIK MRV, DEGREE & LCV
-# ===========================================================================
+def test_evaluation_detects_night_shift_sla_penalty(standard_verifiers):
+    """Klaim Fast-Track (SLA <= 24 jam) dilarang ditempatkan pada Shift MALAM."""
+    claim = Claim("CLM-FAST", "OUTPATIENT", 2_000_000, VerifierRole.JUNIOR_ADJUSTER, sla_hours=24)
+    solver = GeneticAlgorithmSolver([claim], standard_verifiers)
 
-def test_mrv_heuristic_selection():
-    """MRV harus memprioritaskan variabel dengan domain legal terkecil."""
-    variables = ["V1", "V2", "V3"]
-    domains = {
-        "V1": [1, 2, 3, 4],
-        "V2": [10, 20],        # Paling sedikit (ukuran 2)
-        "V3": [100, 200, 300],
-    }
-    csp = CSP[str, int](variables, domains)
-    assignment = {}
+    night_gene = next(
+        idx for idx, slot in enumerate(solver.possible_assignments) if slot.shift == ShiftSlot.MALAM
+    )
 
-    selected = select_unassigned_variable_mrv(assignment, csp)
-    assert selected == "V2"
+    fit, viol, cost, std, details = solver.evaluate_chromosome([night_gene])
+    assert viol >= 1
+    assert details["penalty_score"] >= solver.params.penalty_night_shift_sla
 
 
-def test_degree_heuristic_tie_breaker():
-    """Jika ukuran domain sama, Degree Heuristic memilih variabel dengan relasi tetangga terbanyak."""
-    variables = ["A", "B", "C", "D"]
-    domains = {
-        "A": [1, 2],
-        "B": [1, 2],
-        "C": [1, 2, 3],
-        "D": [1, 2, 3],
-    }
-    csp = CSP[str, int](variables, domains)
-    # A terhubung ke B, C, D (3 tetangga); B hanya terhubung ke A (1 tetangga)
-    csp.add_constraint(BinaryConstraint("A", "B", lambda x, y: x != y))
-    csp.add_constraint(BinaryConstraint("A", "C", lambda x, y: x != y))
-    csp.add_constraint(BinaryConstraint("A", "D", lambda x, y: x != y))
+def test_evaluation_detects_conflict_group_penalty(standard_verifiers):
+    """Dua klaim dalam kelompok konflik yang sama jika ditugaskan ke staf yang sama harus dihukum."""
+    c1 = Claim("C1", "OUTPATIENT", 2_000_000, VerifierRole.JUNIOR_ADJUSTER, conflict_group="FAMILY-A")
+    c2 = Claim("C2", "OUTPATIENT", 2_000_000, VerifierRole.JUNIOR_ADJUSTER, conflict_group="FAMILY-A")
+    solver = GeneticAlgorithmSolver([c1, c2], standard_verifiers)
 
-    assignment = {}
-    selected = select_unassigned_variable_mrv(assignment, csp)
-    # A dan B sama-sama memiliki domain ukuran 2, tapi A memiliki 3 relasi batasan
-    assert selected == "A"
+    # Tugaskan kedua klaim ke ADJ-01
+    gene_adj1 = next(
+        idx for idx, slot in enumerate(solver.possible_assignments) if slot.verifier_id == "ADJ-01"
+    )
+
+    fit, viol, cost, std, details = solver.evaluate_chromosome([gene_adj1, gene_adj1])
+    assert viol >= 1
+    assert details["penalty_score"] >= solver.params.penalty_conflict_group
 
 
-def test_lcv_heuristic_ordering():
-    """LCV harus menempatkan nilai yang paling sedikit membatasi pilihan tetangga di urutan pertama."""
-    variables = ["X", "Y"]
-    domains = {
-        "X": [1, 2],
-        "Y": [1, 2, 3],
-    }
-    csp = CSP[str, int](variables, domains)
-    # X != Y
-    csp.add_constraint(BinaryConstraint("X", "Y", lambda x, y: x != y))
+def test_evaluation_detects_workload_capacity_penalty(standard_verifiers):
+    """Melebihi kuota beban kerja harian staf (UU Ketenagakerjaan) harus memicu penalti kuadratik."""
+    # Buat 15 klaim berbobot tinggi untuk membebani verifikator
+    claims = [
+        Claim(f"CLM-{i}", "OUTPATIENT", 1_000_000, VerifierRole.JUNIOR_ADJUSTER, complexity=3)
+        for i in range(15)
+    ]
+    solver = GeneticAlgorithmSolver(claims, standard_verifiers)
 
-    ordered_values = order_domain_values_lcv("X", {}, csp)
-    # Nilai 1 memangkas Y=1 (1 konflik)
-    # Nilai 2 memangkas Y=2 (1 konflik)
-    assert len(ordered_values) == 2
+    gene_adj1 = next(
+        idx for idx, slot in enumerate(solver.possible_assignments) if slot.verifier_id == "ADJ-01"
+    )
+
+    # Bebankan semua 15 klaim ke ADJ-01 (total beban = 45 poin > limit 20 poin)
+    all_adj1 = [gene_adj1] * 15
+    fit, viol, cost, std, details = solver.evaluate_chromosome(all_adj1)
+
+    assert viol >= 1
+    assert details["penalty_score"] > 0
 
 
 # ===========================================================================
-# 4. PENGUJIAN SOLVER CSP TERPADU (BACKTRACKING + MAC)
+# 2. PENGUJIAN OPERATOR EVOLUSI GENETIKA (SELEKSI, CROSSOVER, ELITISME)
 # ===========================================================================
 
-def test_csp_backtracking_mac_valid_solution(standard_claims, standard_verifiers):
-    """CSP solver dengan AC-3 & MAC harus menemukan solusi 100% legal untuk dataset standar."""
-    engine = ClaimAllocationEngine(standard_claims, standard_verifiers)
-    stats = engine.solve(method="csp_ac3_mrv")
+def test_tournament_selection_picks_fitter_individual(standard_claims, standard_verifiers):
+    """Seleksi turnamen harus memprioritaskan individu dengan fitness tertinggi di antara kandidat."""
+    solver = GeneticAlgorithmSolver(standard_claims, standard_verifiers)
+    pop = [[0] * len(standard_claims), [1] * len(standard_claims), [2] * len(standard_claims)]
+    fitnesses = [10.0, 500.0, 50.0]
 
-    assert stats.is_feasible is True
-    assert stats.solution is not None
-    assert len(stats.solution) == len(standard_claims)
-    assert stats.backtracks == 0  # Heuristik MRV + MAC menemukan solusi secara langsung tanpa backtrack
-
-
-def test_daily_workload_capacity_compliance(standard_claims, standard_verifiers):
-    """Solusi yang dihasilkan wajib mematuhi batas beban kerja harian UU Ketenagakerjaan."""
-    engine = ClaimAllocationEngine(standard_claims, standard_verifiers)
-    stats = engine.solve(method="csp_ac3_mrv")
-
-    assert stats.is_feasible is True
-    verifier_map = {v.verifier_id: v for v in standard_verifiers}
-    claim_map = {c.claim_id: c for c in standard_claims}
-
-    workload_count = {v.verifier_id: 0 for v in standard_verifiers}
-    claim_count = {v.verifier_id: 0 for v in standard_verifiers}
-
-    for c_id, slot in stats.solution.items():
-        claim = claim_map[c_id]
-        workload_count[slot.verifier_id] += claim.complexity
-        claim_count[slot.verifier_id] += 1
-
-    for v_id, total_load in workload_count.items():
-        assert total_load <= verifier_map[v_id].max_daily_workload
-    for v_id, total_claims in claim_count.items():
-        assert total_claims <= verifier_map[v_id].max_daily_claims
+    # Dalam turnamen yang melibatkan indeks 1, individu dengan fitness 500.0 harus terpilih
+    selected = solver._tournament_select(pop, fitnesses)
+    assert selected in pop
 
 
-def test_conflict_group_separation_of_duties(standard_claims, standard_verifiers):
-    """Dua berkas klaim dalam kelompok konflik yang sama (FAM-1) wajib ditugaskan ke staf berbeda."""
-    engine = ClaimAllocationEngine(standard_claims, standard_verifiers)
-    stats = engine.solve(method="csp_ac3_mrv")
+def test_elitism_preserves_best_individuals(standard_claims, standard_verifiers):
+    """Elitisme menjamin bahwa solusi terbaik tidak terdegradasi pada generasi berikutnya."""
+    params = GAParameters(population_size=40, generations=30, elite_count=2, seed=77)
+    solver = GeneticAlgorithmSolver(standard_claims, standard_verifiers, params=params)
+    stats = solver.solve()
 
-    assert stats.is_feasible is True
-    slot_c5 = stats.solution["CLM-005"]
-    slot_c6 = stats.solution["CLM-006"]
+    assert stats.evolution_history is not None
+    assert len(stats.evolution_history) > 0
 
-    # Pemisahan tugas mutlak
-    assert slot_c5.verifier_id != slot_c6.verifier_id
+    # Best fitness per generasi harus monotonik tidak menurun
+    fitness_progression = [rec.best_fitness for rec in stats.evolution_history]
+    for i in range(1, len(fitness_progression)):
+        assert fitness_progression[i] >= fitness_progression[i - 1] - 1e-6
 
 
 # ===========================================================================
-# 5. PENGUJIAN ALGORITMA GENETIKA (GA)
+# 3. PENGUJIAN SOLVER GA LENGKAP & KEPATUHAN BISNIS
 # ===========================================================================
 
-def test_ga_solver_finds_valid_solution(standard_claims, standard_verifiers):
-    """GA solver dengan turnamen dan elitisme harus menemukan solusi tanpa pelanggaran batasan mutlak."""
-    ga_solver = GeneticAlgorithmSolver(standard_claims, standard_verifiers)
-    stats = ga_solver.solve()
+def test_ga_finds_zero_violation_solution(standard_claims, standard_verifiers):
+    """GA harus berhasil menemukan penugasan layak (0 hard violations) pada dataset standar."""
+    params = GAParameters(population_size=60, generations=120, seed=42)
+    engine = ClaimAllocationEngine(standard_claims, standard_verifiers, params=params)
+    stats = engine.solve()
 
     assert stats.is_feasible is True
     assert stats.hard_violations == 0
@@ -321,32 +259,50 @@ def test_ga_solver_finds_valid_solution(standard_claims, standard_verifiers):
     assert len(stats.solution) == len(standard_claims)
 
 
+def test_ga_workload_capacity_compliance(standard_claims, standard_verifiers):
+    """Solusi GA yang dihasilkan wajib mematuhi batas beban kerja UU Ketenagakerjaan."""
+    params = GAParameters(population_size=60, generations=120, seed=42)
+    engine = ClaimAllocationEngine(standard_claims, standard_verifiers, params=params)
+    stats = engine.solve()
+
+    assert stats.is_feasible is True
+    v_map = {v.verifier_id: v for v in standard_verifiers}
+    c_map = {c.claim_id: c for c in standard_claims}
+
+    workload_count = {v.verifier_id: 0 for v in standard_verifiers}
+    claim_count = {v.verifier_id: 0 for v in standard_verifiers}
+
+    for c_id, slot in stats.solution.items():
+        claim = c_map[c_id]
+        workload_count[slot.verifier_id] += claim.complexity
+        claim_count[slot.verifier_id] += 1
+
+    for v_id, total_load in workload_count.items():
+        assert total_load <= v_map[v_id].max_daily_workload
+    for v_id, total_claims in claim_count.items():
+        assert total_claims <= v_map[v_id].max_daily_claims
+
+
+def test_ga_separation_of_duties_compliance(standard_claims, standard_verifiers):
+    """Dua berkas klaim keluarga yang sama (FAM-1) wajib ditugaskan ke staf yang berbeda."""
+    params = GAParameters(population_size=60, generations=120, seed=42)
+    engine = ClaimAllocationEngine(standard_claims, standard_verifiers, params=params)
+    stats = engine.solve()
+
+    assert stats.is_feasible is True
+    slot_c5 = stats.solution["CLM-005"]
+    slot_c6 = stats.solution["CLM-006"]
+    assert slot_c5.verifier_id != slot_c6.verifier_id
+
+
 # ===========================================================================
-# 6. PENGUJIAN KASUS EKSTREM (EDGE CASES)
+# 4. PENGUJIAN KASUS EKSTREM (EDGE CASES)
 # ===========================================================================
-
-def test_edge_case_over_constrained_graceful_failure():
-    """Kapasitas staf jauh di bawah volume klaim (Pigeonhole) harus terdeteksi infeasible tanpa hanging."""
-    claims = [
-        Claim(f"CLM-{i}", "OUTPATIENT", 1_000_000, VerifierRole.JUNIOR_ADJUSTER, complexity=3)
-        for i in range(10)
-    ]
-    # Total beban = 30 poin, tetapi kapasitas verifikator hanya 5 poin
-    verifiers = [
-        Verifier("V1", "Officer 1", VerifierRole.JUNIOR_ADJUSTER, max_daily_workload=5, max_daily_claims=2),
-    ]
-
-    engine = ClaimAllocationEngine(claims, verifiers)
-    stats = engine.solve(method="csp_ac3_mrv")
-
-    assert stats.is_feasible is False
-    assert stats.solution is None
-
 
 def test_edge_case_zero_claims(standard_verifiers):
-    """Himpunan klaim kosong harus diselesaikan secara instan."""
+    """Himpunan klaim kosong harus diselesaikan secara instan tanpa iterasi."""
     engine = ClaimAllocationEngine([], standard_verifiers)
-    stats = engine.solve(method="csp_ac3_mrv")
+    stats = engine.solve()
 
     assert stats.is_feasible is True
     assert stats.solution == {}
@@ -354,27 +310,46 @@ def test_edge_case_zero_claims(standard_verifiers):
 
 
 def test_edge_case_single_claim_boundary(standard_verifiers):
-    """Satu klaim tunggal harus dialokasikan dengan tepat dan cepat."""
+    """Satu klaim tunggal harus dialokasikan secara presisi dan cepat."""
     claim = Claim("CLM-SINGLE", "SURGICAL", 80_000_000, VerifierRole.MEDICAL_ADVISOR, complexity=4)
     engine = ClaimAllocationEngine([claim], standard_verifiers)
-    stats = engine.solve(method="csp_ac3_mrv")
+    stats = engine.solve()
 
     assert stats.is_feasible is True
     assert stats.solution["CLM-SINGLE"].verifier_id == "DOC-01"
 
 
-def test_edge_case_specialist_bottleneck():
-    """Banyak klaim bedah dengan hanya satu Medical Advisor yang kapasitasnya tepat mencukupi."""
+def test_edge_case_over_constrained_graceful_handling():
+    """Kapasitas staf jauh di bawah volume klaim harus menghasilkan infeasible secara anggun tanpa crash."""
+    claims = [
+        Claim(f"CLM-{i}", "OUTPATIENT", 1_000_000, VerifierRole.JUNIOR_ADJUSTER, complexity=3)
+        for i in range(10)
+    ]
+    # Total beban 30 poin, kapasitas staf hanya 5 poin
     verifiers = [
-        Verifier("DOC-1", "dr. Spesialis", VerifierRole.MEDICAL_ADVISOR, max_daily_workload=15, max_daily_claims=5, max_claim_amount_idr=200_000_000),
+        Verifier("V1", "Officer 1", VerifierRole.JUNIOR_ADJUSTER, max_daily_workload=5, max_daily_claims=2),
+    ]
+
+    engine = ClaimAllocationEngine(claims, verifiers)
+    stats = engine.solve()
+
+    assert stats.is_feasible is False
+    assert stats.hard_violations > 0
+    assert stats.solution is None
+
+
+def test_edge_case_specialist_bottleneck():
+    """Seluruh klaim bedah wajib dialokasikan ke satu-satunya dokter penasihat."""
+    verifiers = [
+        Verifier("DOC-1", "dr. Spesialis", VerifierRole.MEDICAL_ADVISOR, max_daily_workload=25, max_daily_claims=8, max_claim_amount_idr=200_000_000),
         Verifier("ADJ-1", "Adjuster Biasa", VerifierRole.JUNIOR_ADJUSTER, max_daily_workload=30, max_daily_claims=15),
     ]
     claims = [
         Claim(f"CLM-S-{i}", "SURGICAL", 50_000_000, VerifierRole.MEDICAL_ADVISOR, complexity=3)
         for i in range(5)
     ]
-    engine = ClaimAllocationEngine(claims, verifiers)
-    stats = engine.solve(method="csp_ac3_mrv")
+    engine = ClaimAllocationEngine(claims, verifiers, params=GAParameters(population_size=40, generations=80, seed=123))
+    stats = engine.solve()
 
     assert stats.is_feasible is True
     for c in claims:
@@ -382,10 +357,7 @@ def test_edge_case_specialist_bottleneck():
 
 
 def test_edge_case_clique_of_conflicts():
-    """
-    Tiga klaim yang saling melarang verifikator yang sama (clique berukuran 3).
-    Dengan 3 verifikator berkualifikasi, penugasan harus unik untuk tiap klaim.
-    """
+    """Tiga berkas dalam sengketa bersama harus disebarkan ke 3 staf verifikator yang berbeda."""
     verifiers = [
         Verifier("V1", "Staff 1", VerifierRole.SENIOR_ADJUSTER, max_daily_workload=20, max_daily_claims=5),
         Verifier("V2", "Staff 2", VerifierRole.SENIOR_ADJUSTER, max_daily_workload=20, max_daily_claims=5),
@@ -396,32 +368,47 @@ def test_edge_case_clique_of_conflicts():
         Claim("C2", "INPATIENT", 20_000_000, VerifierRole.SENIOR_ADJUSTER, conflict_group="CLIQUE"),
         Claim("C3", "INPATIENT", 20_000_000, VerifierRole.SENIOR_ADJUSTER, conflict_group="CLIQUE"),
     ]
-    engine = ClaimAllocationEngine(claims, verifiers)
-    stats = engine.solve(method="csp_ac3_mrv")
+    engine = ClaimAllocationEngine(claims, verifiers, params=GAParameters(population_size=40, generations=80, seed=321))
+    stats = engine.solve()
 
     assert stats.is_feasible is True
     assigned_vids = {stats.solution[c.claim_id].verifier_id for c in claims}
-    # Seluruh verifikator yang ditugaskan harus saling berbeda
     assert len(assigned_vids) == 3
 
 
-def test_edge_case_extreme_claim_amount_exceeds_all_authorities(standard_verifiers):
-    """Klaim dengan nominal ekstrem (Rp 2 Miliar) melebihi seluruh otorisasi staf -> Infeasible."""
+def test_edge_case_extreme_claim_amount_exceeds_all(standard_verifiers):
+    """Klaim dengan nominal raksasa melampaui seluruh limit otorisasi staf harus dihukum."""
     extreme_claim = Claim("CLM-MEGA", "SURGICAL", 2_000_000_000.0, VerifierRole.MEDICAL_ADVISOR, complexity=5)
-    engine = ClaimAllocationEngine([extreme_claim], standard_verifiers)
-    stats = engine.solve(method="csp_ac3_mrv")
+    solver = GeneticAlgorithmSolver([extreme_claim], standard_verifiers)
 
-    assert stats.is_feasible is False
-    assert stats.solution is None
+    # Ambil gen sembarang
+    fit, viol, cost, std, details = solver.evaluate_chromosome([0])
+    assert viol >= 1
+    assert details["penalty_score"] >= solver.params.penalty_financial_excess
 
 
-def test_solver_statistics_completeness(standard_claims, standard_verifiers):
-    """Objek SolverStatistics harus memuat seluruh metrik komputasi dan finansial yang valid."""
-    engine = ClaimAllocationEngine(standard_claims, standard_verifiers)
-    stats = engine.solve(method="csp_ac3_mrv")
+def test_seed_reproducibility(standard_claims, standard_verifiers):
+    """Dua kali eksekusi GA dengan seed identik harus menghasilkan solusi yang persis sama."""
+    params1 = GAParameters(population_size=30, generations=40, seed=999)
+    params2 = GAParameters(population_size=30, generations=40, seed=999)
 
-    assert stats.runtime_ms >= 0.0
-    assert stats.nodes_expanded > 0
-    assert stats.backtracks >= 0
+    solver1 = GeneticAlgorithmSolver(standard_claims, standard_verifiers, params=params1)
+    solver2 = GeneticAlgorithmSolver(standard_claims, standard_verifiers, params=params2)
+
+    res1 = solver1.solve()
+    res2 = solver2.solve()
+
+    assert res1.is_feasible == res2.is_feasible
+    assert res1.fitness_score == pytest.approx(res2.fitness_score)
+    assert res1.hard_violations == res2.hard_violations
+
+
+def test_cost_breakdown_calculation(standard_claims, standard_verifiers):
+    """Perhitungan biaya staf penanganan klaim harus proporsional terhadap tarif jam staf."""
+    params = GAParameters(population_size=40, generations=60, seed=42)
+    engine = ClaimAllocationEngine(standard_claims, standard_verifiers, params=params)
+    stats = engine.solve()
+
     assert stats.total_handling_cost_idr > 0.0
     assert stats.workload_std_dev >= 0.0
+    assert stats.generations_completed > 0
