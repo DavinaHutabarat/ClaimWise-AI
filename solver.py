@@ -1,41 +1,3 @@
-"""
-ClaimWise AI — Business Constraint Solver Module (Genetic Algorithm Optimization)
-==================================================================================
-Mata Kuliah : 10S3001 - Kecerdasan Buatan (+P) / Artificial Intelligence
-Institusi   : Institut Teknologi Del (FITE - Sarjana Sistem Informasi)
-Tugas       : Tugas 2 (Milestone 2 - W04) — Milestone Proyek Terpadu (PjBL)
-
-Deskripsi Modul:
-----------------
-Modul ini mengimplementasikan mesin optimasi komputasional cerdas berbasis
-**Algoritma Genetika (Genetic Algorithm - GA)** untuk sub-masalah keputusan bisnis:
-"Optimasi Penjadwalan Shift & Alokasi Penugasan Berkas Verifikator Klaim Asuransi
-Kesehatan Berbasis Trade-Off Biaya Staf, Waktu SLA, Risiko Fraud, dan Regulasi."
-
-Domain Masalah & Justifikasi Pemilihan GA:
-------------------------------------------
-Pada ClaimWise AI, alokasi berkas klaim bukan sekadar memenuhi batasan kaku (hard
-satisfaction), melainkan merupakan persoalan optimasi kombinatorik multi-objektif:
-1. Trade-off antara Biaya Penanganan (Handling Cost verifikator ahli vs junior).
-2. Percepatan Waktu SLA Klaim (POJK No. 69/POJK.05/2016).
-3. Mitigasi Risiko Kebocoran Fraud (Fraud Leakage) berdasarkan skor Machine Learning.
-4. Keadilan Beban Kerja Staf (Workload Fairness) sesuai UU Ketenagakerjaan No. 13/2003.
-5. Penegakan batasan hukum ketat melalui Sistem Penalti Kebugaran Bertingkat.
-
-Komponen Utama:
-1. Skema Representasi Kromosom Diskret Penugasan Berkas.
-2. Fungsi Kebugaran Multi-Objektif Terbobot dengan Sistem Penalti Masif.
-3. Operator Evolusioner:
-   - Tournament Selection (k=3)
-   - Two-Point Crossover (pc = 0.85)
-   - Dynamic Adaptive Mutation (pm = 0.08 dinamis dengan bias kesesuaian domain)
-   - Elitism (Top-E individu dipertahankan utuh)
-   - Greedy Repair Operator (Memetic Lamarckian Repair untuk jaminan kelayakan 100%)
-4. Mesin Analisis Sensitivitas & Tolok Ukur (Benchmark):
-   - Multi-seed benchmark (10 seeds per skenario) menghitung rerata ± deviasi standar.
-   - Pembangkitan kurva konvergensi resolusi tinggi (docs/convergence_curve.png).
-"""
-
 from __future__ import annotations
 
 import copy
@@ -371,28 +333,27 @@ class GeneticAlgorithmSolver:
         for _ in range(5):
             workload: Dict[str, int] = defaultdict(int)
             claim_counts: Dict[str, int] = defaultdict(int)
-            conflict_tracker: Dict[str, Set[str]] = defaultdict(set)
-
-            for idx, gene in enumerate(repaired):
-                c = self.claims[idx]
-                slot = assignments[gene]
-                workload[slot.verifier_id] += c.complexity
-                claim_counts[slot.verifier_id] += 1
-                if c.conflict_group:
-                    conflict_tracker[c.conflict_group].add(slot.verifier_id)
-
+            seen_conflicts: Dict[Tuple[str, str], int] = {}
             violating_indices: List[int] = []
+
             for idx, gene in enumerate(repaired):
                 c = self.claims[idx]
                 slot = assignments[gene]
                 v = v_map[slot.verifier_id]
+                workload[v.verifier_id] += c.complexity
+                claim_counts[v.verifier_id] += 1
 
-                # Periksa apakah penugasan melanggar batasan statis atau kuota kapasitas
                 is_viol = False
                 if gene not in self.valid_genes_per_claim[idx]:
                     is_viol = True
                 elif workload[v.verifier_id] > v.max_daily_workload or claim_counts[v.verifier_id] > v.max_daily_claims:
                     is_viol = True
+                elif c.conflict_group:
+                    key = (c.conflict_group, v.verifier_id)
+                    if key in seen_conflicts:
+                        is_viol = True
+                    else:
+                        seen_conflicts[key] = idx
 
                 if is_viol:
                     violating_indices.append(idx)
@@ -411,8 +372,10 @@ class GeneticAlgorithmSolver:
                 # Kurangi beban sementara
                 workload[old_vid] -= c.complexity
                 claim_counts[old_vid] -= 1
-                if c.conflict_group and old_vid in conflict_tracker[c.conflict_group]:
-                    conflict_tracker[c.conflict_group].remove(old_vid)
+                if c.conflict_group:
+                    c_key = (c.conflict_group, old_vid)
+                    if c_key in seen_conflicts and seen_conflicts[c_key] == idx:
+                        del seen_conflicts[c_key]
 
                 best_gene: Optional[int] = None
                 best_score = float("inf")
@@ -422,7 +385,7 @@ class GeneticAlgorithmSolver:
                     slot = assignments[g_idx]
                     cand_v = v_map[slot.verifier_id]
 
-                    if c.conflict_group and cand_v.verifier_id in conflict_tracker[c.conflict_group]:
+                    if c.conflict_group and (c.conflict_group, cand_v.verifier_id) in seen_conflicts:
                         continue
                     if workload[cand_v.verifier_id] + c.complexity > cand_v.max_daily_workload:
                         continue
@@ -441,12 +404,12 @@ class GeneticAlgorithmSolver:
                     workload[new_vid] += c.complexity
                     claim_counts[new_vid] += 1
                     if c.conflict_group:
-                        conflict_tracker[c.conflict_group].add(new_vid)
+                        seen_conflicts[(c.conflict_group, new_vid)] = idx
                 else:
                     workload[old_vid] += c.complexity
                     claim_counts[old_vid] += 1
                     if c.conflict_group:
-                        conflict_tracker[c.conflict_group].add(old_vid)
+                        seen_conflicts[(c.conflict_group, old_vid)] = idx
 
         return repaired
 
@@ -474,6 +437,8 @@ class GeneticAlgorithmSolver:
 
         # 1. Pembangkitan Populasi Awal Cerdas (Heuristic Seeding + Random Diversity)
         population: List[List[int]] = self._generate_initial_population(n_claims, n_genes)
+        if population:
+            population[0] = self.repair_individual(population[0])
 
         best_individual: List[int] = population[0][:]
         best_fitness = -1.0

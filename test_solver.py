@@ -412,3 +412,32 @@ def test_cost_breakdown_calculation(standard_claims, standard_verifiers):
     assert stats.total_handling_cost_idr > 0.0
     assert stats.workload_std_dev >= 0.0
     assert stats.generations_completed > 0
+
+
+def test_repair_individual_remedies_infeasible_chromosome(standard_claims, standard_verifiers):
+    """Operator perbaikan heuristik (Greedy Repair) wajib menghilangkan pelanggaran batasan."""
+    solver = GeneticAlgorithmSolver(standard_claims, standard_verifiers)
+    # Buat kromosom buatan dengan alel sembarang yang melanggar batasan
+    bad_chromosome = [0] * len(standard_claims)
+    fit_bad, viol_bad, _, _, _ = solver.evaluate_chromosome(bad_chromosome)
+    assert viol_bad > 0
+
+    repaired = solver.repair_individual(bad_chromosome)
+    fit_rep, viol_rep, _, _, _ = solver.evaluate_chromosome(repaired)
+    assert viol_rep == 0
+    assert fit_rep > fit_bad
+
+
+def test_large_scale_100_claims_achieves_zero_violations():
+    """Kasus skala besar (100 klaim, 24 staf) wajib mencapai solusi 100% layak (0 pelanggaran)."""
+    from solver import generate_benchmark_instance
+    claims, verifiers = generate_benchmark_instance("LAR-TEST", 100, 24, seed=303)
+    params = GAParameters(population_size=100, generations=100, seed=303)
+    engine = ClaimAllocationEngine(claims, verifiers, params=params)
+    stats = engine.solve()
+
+    assert stats.is_feasible is True
+    assert stats.hard_violations == 0
+    assert stats.solution is not None
+    assert len(stats.solution) == 100
+

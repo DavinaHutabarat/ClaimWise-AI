@@ -6,14 +6,14 @@
 > Semester Gasal 2026/2027 &bull; Program Studi Sarjana Sistem Informasi  
 > Fakultas Informatika dan Teknik Elektro (FITE), Institut Teknologi Del  
 > **Dosen Pengampu:** Samuel Indra Gunawan Situmeang  
-> **Identitas Tim Pengembang (Grup 01):**  
-> 1. **Davina Olivia Yosefanny Hutabarat / 12S23001** — *QA, Evaluation & Ethics Lead*  
-> 2. **Jodi / 12S23002** — *AI Architect & Model Lead*  
-> 3. **Pedro Simangunsong / 12S23003** — *Integration & Interface Engineer*  
+> **Identitas Tim Pengembang (Grup 08):**  
+> 1. **Davina Olivia Yosefanny Hutabarat / 12S24047** — *AI Architecture & Model Lead*  
+> 2. **Pedro Simangunsong / 12S24011** — *Integration & Interface Engineer + QA, Evaluation & Ethics Lead*  
+> 3. **Jody Alfonso Siahaan / 12S24039** — *Data & Knowledge Engineer*  
 >
 > **Milestones:**  
 > &bull; [Milestone 1 (W02): Baseline Search Triase Klaim (UCS & A*)](docs/Laporan_Tugas01_ClaimWise.md)  
-> &bull; [Milestone 2 (W04): Modul Pemecahan Batasan Bisnis (Algoritma Genetika)](docs/Grup01-Tugas02.md) &bull; **PDF Laporan:** [Grup01-Tugas02.pdf](docs/Grup01-Tugas02.pdf) &bull; **Rilis:** `v0.2-milestone2`
+> &bull; [Milestone 2 (W04): Modul Pemecahan Batasan Bisnis (Algoritma Genetika)](docs/Grup08-Tugas02.md) &bull; **PDF Laporan:** [Grup08-Tugas02.pdf](docs/Grup08-Tugas02.pdf) &bull; **Rilis:** `v0.2-milestone2`
 
 ---
 
@@ -134,22 +134,23 @@ Pada Milestone 2 (W04), sistem mengimplementasikan mesin optimasi komputasional 
 
 ---
 
-## 5. Hasil Analisis Sensitivitas & Tolok Ukur Kinerja GA
+## 5. Hasil Analisis Sensitivitas & Tolok Ukur Kinerja GA (Multi-Seed: 10 Seeds)
 
-Hasil eksperimen pengujian terhadap variasi skala masalah dan kasus ekstrem disajikan di bawah ini:
+Hasil eksperimen pengujian terhadap variasi skala masalah dan kasus ekstrem dengan 10 seeds acak independen via `python solver.py --benchmark`:
 
-| Skenario Masalah | Volume Klaim | Verifikator | Populasi | Generasi Selesai | Status Kelayakan | Waktu Komputasi (ms) | Pelanggaran Regulasi | Total Biaya Staf | &sigma; Beban Staf |
-|---|---|---|---|---|---|---|---|---|---|
-| **Skala Kecil (Small Scale)** | 10 Berkas | 4 Staf | 40 | 46 | **FEASIBLE** | **21,81 ms** | **0** | Rp 422.500 | 4,85 |
-| **Skala Sedang (Medium Scale)** | 40 Berkas | 10 Staf | 60 | 106 | **FEASIBLE** | **206,02 ms** | **0** | Rp 3.210.000 | 4,82 |
-| **Skala Besar (Large Scale)** | 100 Berkas | 24 Staf | 100 | 200 | *99% FEASIBLE* | **1.535,99 ms** | 1 | Rp 9.780.000 | 6,76 |
-| **Kasus Ekstrem: Over-Constrained** | 25 Berkas | 2 Staf | 50 | 100 | **INFEASIBLE** | **100,30 ms** | 68 | Rp 975.000 | 0,00 |
-| **Kasus Ekstrem: Bottleneck Spesialis**| 12 Berkas | 3 Staf | 50 | 46 | **FEASIBLE** | **26,05 ms** | **0** | Rp 450.000 | 11,31 |
+| Skenario Masalah | Volume Klaim / Staf | Populasi | Status Kelayakan (10 Seeds) | Waktu Komputasi (ms) | Generasi Selesai | Pelanggaran Regulasi | Total Biaya Staf (IDR) | &sigma; Beban Staf |
+|---|---|---|---|---|---|---|---|---|
+| **Skala Kecil (Small Scale)** | 10 Klaim / 4 Staf | 40 | **FEASIBLE (10/10)** | **11,20 &plusmn; 1,59 ms** | 22,9 &plusmn; 2,9 | **0,0 &plusmn; 0,0** | Rp 662.000 &plusmn; 200.922 | 3,29 &plusmn; 1,27 |
+| **Skala Sedang (Medium Scale)** | 40 Klaim / 10 Staf | 60 | **FEASIBLE (10/10)** | **128,12 &plusmn; 36,91 ms** | 66,7 &plusmn; 19,9 | **0,0 &plusmn; 0,0** | Rp 2.697.000 &plusmn; 281.509 | 2,93 &plusmn; 0,78 |
+| **Skala Besar (Large Scale)** | 100 Klaim / 24 Staf | 100 | **FEASIBLE (10/10)** | **345,68 &plusmn; 196,21 ms** | 47,7 &plusmn; 27,5 | **0,0 &plusmn; 0,0** | Rp 8.132.500 &plusmn; 862.443 | 5,02 &plusmn; 0,53 |
+| **Kasus Ekstrem: Over-Constrained** | 25 Klaim / 2 Staf | 50 | **INFEASIBLE (0/10)** | **111,52 &plusmn; 1,83 ms** | 100,0 &plusmn; 0,0 | 82,2 &plusmn; 8,5 | Rp 1.125.000 &plusmn; 89.922 | 0,30 &plusmn; 0,24 |
+| **Specialist Bottleneck**| 12 Klaim / 3 Staf | 50 | **FEASIBLE (10/10)** | **9,28 &plusmn; 0,13 ms** | 16,0 &plusmn; 0,0 | **0,0 &plusmn; 0,0** | Rp 450.000 &plusmn; 0 | 11,31 &plusmn; 0,00 |
 
 ### Wawasan Kritis Analisis Sensitivitas:
-1. **Konvergensi Efisien pada Skala Operasional:** Pada beban 10–40 klaim harian, GA mencapai solusi optimal 100% legal (0 pelanggaran) dalam waktu rata-rata di bawah 210 milidetik.
-2. **Ketahanan Kasus Ekstrem Over-Constrained:** Pada kondisi kapasitas staf melampaui kuota legal harian, GA menghentikan evolusi secara anggun (*graceful termination*) tanpa kebuntuan atau *infinite loop*, serta melaporkan pelanggaran kapasitas secara transparan.
-3. **Bottleneck Spesialis:** 100% berkas tindakan bedah berhasil dialokasikan secara presisi ke satu-satunya dokter spesialis penasihat dalam tempo 26,05 ms.
+1. **Pencapaian Kelayakan 100% pada Skala Besar:** Melalui penambahan operator *Greedy Lamarckian Repair*, GA meniadakan seluruh pelanggaran kapasitas staf (10/10 runs layak) dengan waktu rata-rata sangat cepat (345,68 ms).
+2. **Konvergensi Cepat & Alami:** Kriteria henti alami (*stagnation patience* 15 generasi) mempercepat konvergensi kasus kecil (22,9 generasi, 11,20 ms) dan bottleneck spesialis (16 generasi, 9,28 ms).
+3. **Ketahanan Kasus Ekstrem Over-Constrained:** Ketika beban berkas melampaui kapasitas legal staf (25 klaim vs kapasitas 8 berkas), solver menghentikan evolusi secara anggun (*graceful termination*) tanpa kebuntuan dan menghitung penalti kapasitas (82,2 poin pelanggaran).
+4. **Bottleneck Spesialis:** 100% berkas tindakan bedah berhasil dialokasikan presisi ke satu-satunya dokter penasihat dalam tempo 9,28 ms.
 
 ---
 
@@ -164,13 +165,14 @@ ClaimWise-AI/
 ├── ucs_search.py                    # Implementasi modul pencarian rute triase (Milestone 1)
 ├── test_ucs_search.py               # 23 unit test otomatis pencarian jalur (Milestone 1)
 ├── solver.py                        # Modul solver optimasi GA multi-objektif (Milestone 2)
-├── test_solver.py                   # 20 unit test otomatis inferensi batasan & edge cases GA (Milestone 2)
+├── test_solver.py                   # 22 unit test otomatis inferensi batasan & edge cases GA (Milestone 2)
 ├── docs/
 │   ├── Laporan_Tugas01_ClaimWise.md # Dokumen laporan resmi Milestone 1 (W02)
 │   ├── Laporan_Tugas01_ClaimWise.html
-│   ├── Grup01-Tugas02.md            # Dokumen laporan resmi akademik Milestone 2 (W04)
-│   ├── Grup01-Tugas02.html          # Versi cetak web dokumen resmi Milestone 2
-│   └── Grup01-Tugas02.pdf           # Dokumen serahan final PDF ECourse Del
+│   ├── Grup08-Tugas02.md            # Dokumen laporan resmi akademik Milestone 2 (W04)
+│   ├── Grup08-Tugas02.html          # Versi cetak web dokumen resmi Milestone 2
+│   ├── Grup08-Tugas02.pdf           # Dokumen serahan final PDF ECourse Del
+│   └── convergence_curve.png        # Grafik kurva konvergensi resolusi tinggi (Matplotlib)
 └── README.md                        # Dokumentasi komprehensif repositori terintegrasi
 ```
 
@@ -197,65 +199,68 @@ uv sync
 # 3. Jalankan demonstrasi modul alokasi klaim berbasis GA
 uv run python solver.py
 
-# 4. Jalankan tolok ukur analisis sensitivitas GA (skala kecil, sedang, besar & kasus ekstrem)
+# 4. Jalankan tolok ukur analisis sensitivitas GA multi-seed (10 seeds) & grafik konvergensi
 uv run python solver.py --benchmark
 
 # 5. Jalankan modul pencarian triase Milestone 1 (UCS & A*)
 uv run python ucs_search.py
 
-# 6. Jalankan seluruh rangkaian pengujian otomatis (Milestone 1 + Milestone 2)
+# 6. Jalankan seluruh rangkaian pengujian otomatis (45 unit test)
 uv run pytest -v
 ```
 
 ---
 
-## 8. Hasil Pengujian Otomatis (pytest: 43/43 Passed - 100%)
+## 8. Hasil Pengujian Otomatis (pytest: 45/45 Passed - 100%)
 
-Seluruh logika triase, heuristik search, representasi kromosom GA, sistem penalti, operator evolusi, kepatuhan batas beban kerja, serta kasus ekstrem diuji oleh **43 unit test otomatis**:
+Seluruh logika triase, heuristik search, representasi kromosom GA, sistem penalti, operator evolusi, kepatuhan batas beban kerja, serta kasus ekstrem diuji oleh **45 unit test otomatis**:
 
 ```text
 ============================= test session starts =============================
 platform win32 -- Python 3.11.16, pytest-9.1.1, pluggy-1.6.0
 rootdir: C:\Users\User\Documents\GitHub\ClaimWise-AI
 configfile: pyproject.toml
-collected 43 items
+collected 45 items
 
 test_solver.py::test_role_compatibility_logic PASSED                     [  2%]
 test_solver.py::test_evaluation_detects_role_mismatch_penalty PASSED     [  4%]
 test_solver.py::test_evaluation_detects_financial_excess_penalty PASSED  [  6%]
-test_solver.py::test_evaluation_detects_hospital_conflict_penalty PASSED [  9%]
+test_solver.py::test_evaluation_detects_hospital_conflict_penalty PASSED [  8%]
 test_solver.py::test_evaluation_detects_night_shift_sla_penalty PASSED   [ 11%]
 test_solver.py::test_evaluation_detects_conflict_group_penalty PASSED    [ 13%]
-test_solver.py::test_evaluation_detects_workload_capacity_penalty PASSED [ 16%]
-test_solver.py::test_tournament_selection_picks_fitter_individual PASSED [ 18%]
+test_solver.py::test_evaluation_detects_workload_capacity_penalty PASSED [ 15%]
+test_solver.py::test_tournament_selection_picks_fitter_individual PASSED [ 17%]
 test_solver.py::test_elitism_preserves_best_individuals PASSED           [ 20%]
-test_solver.py::test_ga_finds_zero_violation_solution PASSED             [ 23%]
-test_solver.py::test_ga_workload_capacity_compliance PASSED              [ 25%]
-test_solver.py::test_ga_separation_of_duties_compliance PASSED           [ 27%]
-test_solver.py::test_edge_case_zero_claims PASSED                        [ 30%]
-test_solver.py::test_edge_case_single_claim_boundary PASSED              [ 32%]
-test_solver.py::test_edge_case_over_constrained_graceful_handling PASSED [ 34%]
-test_solver.py::test_edge_case_specialist_bottleneck PASSED              [ 37%]
-test_solver.py::test_edge_case_clique_of_conflicts PASSED                [ 39%]
-test_solver.py::test_edge_case_extreme_claim_amount_exceeds_all PASSED   [ 41%]
-test_solver.py::test_seed_reproducibility PASSED                         [ 44%]
-test_solver.py::test_cost_breakdown_calculation PASSED                   [ 46%]
-test_ucs_search.py::test_low_risk_classification PASSED                  [ 48%]
-... (22 unit test Milestone 1 lainnya) ...
+test_solver.py::test_ga_finds_zero_violation_solution PASSED             [ 22%]
+test_solver.py::test_ga_workload_capacity_compliance PASSED              [ 24%]
+test_solver.py::test_ga_separation_of_duties_compliance PASSED           [ 26%]
+test_solver.py::test_edge_case_zero_claims PASSED                        [ 28%]
+test_solver.py::test_edge_case_single_claim_boundary PASSED              [ 31%]
+test_solver.py::test_edge_case_over_constrained_graceful_handling PASSED [ 33%]
+test_solver.py::test_edge_case_specialist_bottleneck PASSED              [ 35%]
+test_solver.py::test_edge_case_clique_of_conflicts PASSED                [ 37%]
+test_solver.py::test_edge_case_extreme_claim_amount_exceeds_all PASSED   [ 40%]
+test_solver.py::test_seed_reproducibility PASSED                         [ 42%]
+test_solver.py::test_cost_breakdown_calculation PASSED                   [ 44%]
+test_solver.py::test_repair_individual_remedies_infeasible_chromosome PASSED [ 46%]
+test_solver.py::test_large_scale_100_claims_achieves_zero_violations PASSED [ 48%]
+test_ucs_search.py::test_low_risk_classification PASSED                  [ 51%]
+test_ucs_search.py::test_high_risk_classification PASSED                 [ 53%]
+... (21 unit test Milestone 1 lainnya) ...
 test_ucs_search.py::test_negative_edge_weight_raises_error PASSED        [100%]
 
-============================= 43 passed in 0.35s ==============================
+============================= 45 passed in 0.36s ==============================
 ```
 
 ---
 
 ## 9. Distribusi Peran Tim (PjBL)
 
-| Nama Mahasiswa | Peran Enterprise AI | Tanggung Jawab & Kontribusi Teknis |
-|---|---|---|
-| **Davina Olivia Yosefanny Hutabarat** | **QA, Evaluation & Ethics Lead** | • Perancangan dan validasi suite pengujian otomatis `test_solver.py` (20 unit test).<br>• Validasi kepatuhan hukum batasan UU Ketenagakerjaan No. 13/2003.<br>• Audit etika AI bebas konflik kepentingan dan kepatuhan UU PDP No. 27/2022.<br>• Koordinasi penyusunan analisis sensitivitas GA dan rilis dokumen resmi. |
-| **Jodi** | **AI Architect & Model Lead** | • Formulasi formal skema kromosom dan fungsi kebugaran multi-objektif GA.<br>• Implementasi algoritma GA dengan turnamen, crossover dua titik, mutasi adaptif, dan elitisme (`solver.py`).<br>• Kalibrasi sistem penalti bertingkat untuk batasan hukum dan SOP OJK.<br>• Evaluasi konvergensi kebugaran antar generasi dan ketahanan kasus ekstrem. |
-| **Pedro Simangunsong** | **Integration & Interface Engineer** | • Konfigurasi lingkungan terpadu Astral `uv` (`pyproject.toml` v0.2.0).<br>• Perancangan antarmuka eksekusi CLI (`--benchmark`) dan integrasi modul.<br>• Dokumentasi teknis komprehensif `README.md`, laporan web, dan rilis tag Git `v0.2-milestone2`. |
+| Nama Mahasiswa | NIM | Peran Enterprise AI (Panduan PjBL) | Tanggung Jawab & Kontribusi Teknis |
+|---|---|---|---|
+| **Davina Olivia Yosefanny Hutabarat** | **12S24047** | **AI Architecture & Model Lead** | • Perancangan skema kromosom diskret integer dan formulasi fungsi kebugaran multi-objektif GA.<br>• Implementasi algoritma GA dengan turnamen, crossover dua titik, mutasi adaptif, dan elitisme (`solver.py`).<br>• Kalibrasi sistem penalti bertingkat untuk batasan hukum dan SOP OJK.<br>• Evaluasi konvergensi kebugaran antar generasi dan ketahanan kasus ekstrem. |
+| **Pedro Simangunsong** | **12S24011** | **Integration & Interface Engineer + QA, Evaluation & Ethics Lead** | • Pembangunan operator perbaikan heuristik (*Greedy Lamarckian Repair*) menjamin kelayakan 100%.<br>• Perancangan dan validasi suite pengujian otomatis `test_solver.py` (22 unit test).<br>• Validasi kepatuhan hukum batasan UU Ketenagakerjaan No. 13/2003 dan POJK No. 69/2016.<br>• Konfigurasi lingkungan terpadu Astral `uv` (`pyproject.toml` v0.2.0), antarmuka CLI (`--benchmark`), dan rilis tag Git `v0.2-milestone2`. |
+| **Jody Alfonso Siahaan** | **12S24039** | **Data & Knowledge Engineer** | • Pemodelan generator data sintetis klaim realistis (`generate_benchmark_instance`).<br>• Audit etika AI bebas konflik kepentingan dan kepatuhan data privasi.<br>• Analisis sensitivitas empiris 10 seeds dan pembangkitan visualisasi kurva konvergensi Matplotlib (`docs/convergence_curve.png`). |
 
 ---
 

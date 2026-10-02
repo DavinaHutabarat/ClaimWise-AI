@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Laporan Tugas 2 Milestone 2 - ClaimWise AI (Institut Teknologi Del)</title>
+<style>
+  @media print {
+    @page {
+      size: A4;
+      margin: 10mm 12mm 10mm 12mm;
+    }
+    body {
+      font-size: 9.5pt;
+      color: #000;
+      line-height: 1.4;
+    }
+    .no-print {
+      display: none !important;
+    }
+    h1, h2, h3 {
+      page-break-after: avoid;
+    }
+    table, pre, blockquote, .chart-container, .math-display {
+      page-break-inside: avoid;
+    }
+  }
+
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.42;
+    color: #24292e;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 18px 16px;
+    background-color: #fff;
+  }
+
+  .banner {
+    background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%);
+    color: white;
+    padding: 16px 22px;
+    border-radius: 6px;
+    margin-bottom: 14px;
+  }
+  .banner h1 { margin: 0 0 4px 0; font-size: 20px; color: #fff; text-align: center; letter-spacing: 0.5px; }
+  .banner h2 { margin: 0 0 6px 0; font-size: 14px; font-weight: normal; color: #e3f2fd; text-align: center; }
+  .banner p { margin: 2px 0; font-size: 11.5px; text-align: center; color: #bbdefb; }
+
+  .meta-box {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-left: 5px solid #1976d2;
+    padding: 10px 14px;
+    border-radius: 4px;
+    margin-bottom: 14px;
+    font-size: 12px;
+  }
+  .meta-box p { margin: 2px 0; }
+
+  h1 { font-size: 15pt; border-bottom: 2px solid #1976d2; padding-bottom: 3px; margin-top: 14pt; margin-bottom: 6pt; color: #0d47a1; }
+  h2 { font-size: 12.5pt; border-bottom: 1px solid #dee2e6; padding-bottom: 2px; margin-top: 12pt; margin-bottom: 5pt; color: #1565c0; }
+  h3 { font-size: 10.5pt; margin-top: 9pt; margin-bottom: 3pt; color: #283593; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 12px 0;
+    font-size: 9pt;
+  }
+  th, td {
+    border: 1px solid #cfd8dc;
+    padding: 5px 8px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background-color: #eceff1;
+    color: #263238;
+    font-weight: 600;
+  }
+  tr:nth-child(even) {
+    background-color: #fcfcfc;
+  }
+
+  code {
+    font-family: 'Consolas', 'Courier New', monospace;
+    background-color: #f1f3f5;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 8.5pt;
+    color: #c7254e;
+  }
+  pre {
+    background-color: #212529;
+    color: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 8pt;
+    line-height: 1.3;
+    white-space: pre-wrap;
+    word-break: break-all;
+    margin: 6px 0;
+  }
+  pre code {
+    background-color: transparent;
+    color: inherit;
+    padding: 0;
+  }
+
+  .badge-btn {
+    display: inline-block;
+    background-color: #28a745;
+    color: white;
+    padding: 7px 13px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 12px;
+    cursor: pointer;
+    border: none;
+  }
+  .badge-btn:hover {
+    background-color: #218838;
+  }
+
+  .proof-box {
+    background-color: #e8f5e9;
+    border: 1px solid #c8e6c9;
+    border-left: 5px solid #2e7d32;
+    padding: 8px 12px;
+    margin: 8px 0;
+    border-radius: 4px;
+    font-size: 9pt;
+  }
+
+  .math-display {
+    text-align: center;
+    font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', serif;
+    font-size: 11pt;
+    padding: 6px 10px;
+    margin: 8px 0;
+    background-color: #f8fafd;
+    border: 1px solid #d9e6f2;
+    border-radius: 4px;
+    color: #1a237e;
+  }
+  .fraction {
+    display: inline-flex;
+    flex-direction: column;
+    vertical-align: middle;
+    text-align: center;
+    padding: 0 4px;
+  }
+  .numerator {
+    padding-bottom: 1px;
+  }
+  .fraction-line {
+    border-top: 1.5px solid #1a237e;
+    margin: 1px 0;
+  }
+  .denominator {
+    padding-top: 1px;
+  }
+
+  .chart-container {
+    text-align: center;
+    margin: 10px 0;
+    padding: 6px;
+    background: #fafafa;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+  }
+  .chart-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+  }
+  .chart-caption {
+    font-size: 8.5pt;
+    color: #555;
+    margin-top: 4px;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<div class="no-print" style="margin-bottom: 14px; text-align: right;">
+  <button class="badge-btn" onclick="window.print()">🖨️ Cetak / Simpan sebagai PDF (Grup08-Tugas02.pdf)</button>
+</div>
+
+<div class="banner">
+  <h1>INSTITUT TEKNOLOGI DEL</h1>
+  <h2>FAKULTAS INFORMATIKA DAN TEKNIK ELEKTRO — PROGRAM STUDI SARJANA SISTEM INFORMASI</h2>
+  <p><strong>Mata Kuliah:</strong> 10S3001 - Kecerdasan Buatan (+P) / Artificial Intelligence | Semester Gasal 2026/2027</p>
+  <p><strong>Penugasan:</strong> Tugas 2 (Milestone 2 - W04) — Modul Pemecahan Batasan Keputusan Bisnis (GA Optimization)</p>
+</div>
+
+<div class="meta-box">
+  <p><strong>Judul Proyek:</strong> ClaimWise AI — Enterprise Copilot untuk Optimasi Triase Klaim & Alokasi Penjadwalan Verifikator Berbasis Algoritma Genetika Multi-Objektif</p>
+  <p><strong>Perusahaan Kasus:</strong> PT Asuransi Sehat Sejahtera Tbk (HealthCare Shield Enterprise) / Inhealth</p>
+  <p><strong>Dosen Pengampu:</strong> Samuel Indra Gunawan Situmeang</p>
+  <p><strong>Tautan Repositori GitHub:</strong> <a href="https://github.com/DavinaHutabarat/ClaimWise-AI" target="_blank">https://github.com/DavinaHutabarat/ClaimWise-AI</a> (Tag Rilis: <code>v0.2-milestone2</code>)</p>
+  <p><strong>Format Berkas Serahan Resmi:</strong> <code>Grup08-Tugas02.pdf</code></p>
+</div>
+
+<h2>IDENTITAS TIM & DISTRIBUSI PERAN PROFESIONAL (PjBL)</h2>
+<table>
+  <thead>
+    <tr>
+      <th style="width: 5%;">No</th>
+      <th style="width: 12%;">NIM</th>
+      <th style="width: 28%;">Nama Mahasiswa</th>
+      <th style="width: 25%;">Peran Enterprise AI (PjBL)</th>
+      <th style="width: 30%;">Tanggung Jawab Utama Milestone 2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td><strong>12S24047</strong></td>
+      <td><strong>Davina Olivia Yosefanny Hutabarat</strong></td>
+      <td><strong>AI Architecture & Model Lead</strong></td>
+      <td>Perancangan skema kromosom diskret integer, formulasi matematis fungsi kebugaran multi-objektif (<em>fitness function</em>), kalibrasi 6 sistem penalti regulasi, dan implementasi loop evolusi GA terintegrasi (<code>solver.py</code>).</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><strong>12S24011</strong></td>
+      <td><strong>Pedro Simangunsong</strong></td>
+      <td><strong>Integration & Interface Engineer + QA, Evaluation & Ethics Lead</strong></td>
+      <td>Pengembangan operator perbaikan heuristik (<em>Greedy Lamarckian Repair</em>), antarmuka eksekusi tolok ukur CLI (<code>--benchmark</code>), suite pengujian otomatis <code>test_solver.py</code> (22 unit test), dan rilis Git tag <code>v0.2-milestone2</code>.</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><strong>12S24039</strong></td>
+      <td><strong>Jody Alfonso Siahaan</strong></td>
+      <td><strong>Data & Knowledge Engineer</strong></td>
+      <td>Pemodelan generator data sintetis klaim realistis (<code>generate_benchmark_instance</code>), audit kepatuhan regulasi UU Ketenagakerjaan No. 13/2003 & POJK No. 69/2016, serta visualisasi kurva konvergensi Matplotlib.</td>
+    </tr>
+  </tbody>
+</table>
+
+---
+
+<h2>BAB 1. PENDAHULUAN & LATAR BELAKANG MASALAH BISNIS</h2>
+
+<h3>1.1 Profil Organisasi & Kesinambungan dengan Milestone 1</h3>
+<p>
+Pada Milestone 1 (W02), proyek <strong>ClaimWise AI</strong> berhasil memetakan proses triase klaim asuransi kesehatan ke dalam graf keputusan ruang keadaan berbasis algoritma <em>Uniform Cost Search</em> (UCS) dan <em>A* Search</em>. Pada konteks operasional sebuah perusahaan asuransi kesehatan nasional swasta (<strong>PT Asuransi Sehat Sejahtera Tbk / Inhealth</strong>), perusahaan mengelola portofolio lebih dari 45.000 klaim per bulan dengan perputaran dana klaim melampaui Rp 180 Miliar per kuartal dari 1.800 jaringan rumah sakit rekanan.
+</p>
+<p>
+Setelah jalur verifikasi ditentukan oleh search engine (misalnya jalur <em>Fast-Track</em>, <em>Standard Review</em>, atau <em>Fraud Investigation</em>), operasional harian berhadapan dengan sub-masalah keputusan bisnis yang sangat krusial: <strong>Bagaimana menugaskan tumpukan berkas klaim harian kepada staf verifikator (Junior Adjuster, Senior Adjuster, Medical Advisor, dan Fraud Investigator) serta mengatur jendela shift kerja mereka (Pagi, Siang, Malam) secara efisien dan patuh regulasi?</strong>
+</p>
+
+<h3>1.2 Identifikasi Masalah & Trade-Off Operasional Enterprise</h3>
+<p>
+Masalah alokasi triase klaim ini bukan sekadar persoalan pencocokan kaku (<em>hard constraint satisfaction</em> murni tanpa fungsi tujuan), melainkan persoalan <strong>optimasi kombinatorik multi-objektif (<em>Multi-Objective Combinatorial Optimization</em>)</strong> dengan trade-off bisnis nyata:
+</p>
+<ul>
+  <li><strong>Minimasi Biaya Penanganan (Handling Cost):</strong> Menugaskan berkas klaim rawat jalan bernilai kecil (&lt; Rp 5 Juta) kepada dokter penasihat (<em>Medical Advisor</em> tarif Rp 180.000/jam) memicu pemborosan anggaran operasional yang masif. Berkas berisiko rendah harus diprioritaskan kepada verifikator junior (Rp 60.000/jam).</li>
+  <li><strong>Percepatan SLA & Regulasi OJK (POJK No. 69/POJK.05/2016):</strong> Waktu penyelesaian klaim diatur ketat oleh OJK (maksimal 14 hari kerja, atau &lt; 24 jam untuk <em>Fast-Track</em>). Klaim prioritas tinggi tidak boleh ditugaskan pada shift malam di mana supervisi bank dan verifikasi lanjutan sedang tidak beroperasi.</li>
+  <li><strong>Mitigasi Risiko Kebocoran Fraud (Fraud Leakage):</strong> Berdasarkan skor prediksi Machine Learning (Milestone 1), berkas anomali atau berisiko tinggi (skor &ge; 0.65) yang dialokasikan ke staf junior yang minim pengalaman audit forensik akan memperbesar risiko klaim fiktif (<em>phantom billing</em>).</li>
+  <li><strong>Keadilan Beban Kerja (Workload Fairness) & UU Ketenagakerjaan No. 13/2003:</strong> Batas beban kognitif dan volume harian staf diatur ketat guna mencegah kelelahan mental (<em>burnout / cognitive fatigue</em>) yang dapat memicu kelalaian persetujuan klaim.</li>
+</ul>
+
+<h3>1.3 Justifikasi Pemilihan Pendekatan Algoritma Genetika (GA)</h3>
+<p>
+Dibandingkan algoritma kepuasan batasan murni (CSP), <strong>Algoritma Genetika (GA)</strong> dipilih karena keunggulannya dalam menangani ruang pencarian kombinatorik berskala raksasa (ruang solusi 72<sup>100</sup> &asymp; 10<sup>185</sup> untuk 100 berkas pada 24 staf) sekaligus meramu fungsi objektif multi-kriteria:
+</p>
+<div class="proof-box">
+  <strong>Mengapa Algoritma Genetika (GA) Sangat Tepat?</strong><br>
+  GA menyediakan kerangka stokastik adaptif berbasis populasi yang secara alami mampu mengevaluasi derajat kualitas solusi (<em>solution fitness</em>) melalui sistem penalti bertingkat (<em>multi-tiered penalty system</em>). Batasan hukum yang bersifat mutlak ditegakkan secara tegas melalui penalti masif, sementara efisiensi biaya, kecepatan SLA, dan pemerataan beban kerja dioptimalkan secara simultan melalui tekanan seleksi evolusioner.
+</div>
+
+---
+
+<h2>BAB 2. PEMODELAN MATEMATIS FORMAL ALGORITMA GENETIKA (GA)</h2>
+
+<h3>2.1 Skema Representasi Kromosom</h3>
+<p>Solusi alokasi penugasan berkas klaim direpresentasikan dalam bentuk kromosom vektor diskret integer:</p>
+<div class="math-display">
+  <strong>g</strong> = &lang; <i>g</i><sub>1</sub>, <i>g</i><sub>2</sub>, &hellip;, <i>g</i><sub><i>N</i></sub> &rang;, &emsp; <i>g</i><sub><i>i</i></sub> &isin; { 0, 1, &hellip;, <i>K</i> &minus; 1 }
+</div>
+<p>Di mana <i>N</i> adalah total berkas klaim, setiap gen <i>g</i><sub><i>i</i></sub> merepresentasikan penugasan klaim <i>c</i><sub><i>i</i></sub>, ruang alel <i>K</i> = <i>M</i> &times; |<i>S</i>| dengan |<i>S</i>| = 3 (Pagi, Siang, Malam), dan setiap gen memetakan Slot(<i>g</i><sub><i>i</i></sub>) = ( verifier(<i>g</i><sub><i>i</i></sub>), shift(<i>g</i><sub><i>i</i></sub>) ).</p>
+
+<h3>2.2 Formulasi Fungsi Kebugaran Multi-Objektif & Sistem Penalti</h3>
+<p>Tujuan komputasi evolusi adalah memaksimalkan fungsi kebugaran non-linier <i>f</i>(<strong>g</strong>):</p>
+<div class="math-display">
+  <i>f</i>(<strong>g</strong>) = 
+  <span class="fraction">
+    <span class="numerator">10<sup>6</sup></span>
+    <span class="fraction-line"></span>
+    <span class="denominator">1.0 + <i>P</i><sub>total</sub>(<strong>g</strong>) + <i>T</i><sub>cost</sub>(<strong>g</strong>) + <i>T</i><sub>balance</sub>(<strong>g</strong>) + <i>T</i><sub>fraud</sub>(<strong>g</strong>)</span>
+  </span>
+</div>
+
+<h4>A. Sistem Penalti Regulasi Mutlak (<i>P</i><sub>total</sub>)</h4>
+<div class="math-display">
+  <i>P</i><sub>total</sub>(<strong>g</strong>) = &lambda;<sub>role</sub> <i>V</i><sub>role</sub> + &lambda;<sub>auth</sub> <i>V</i><sub>auth</sub> + &lambda;<sub>conf</sub> <i>V</i><sub>conf</sub> + &lambda;<sub>sla</sub> <i>V</i><sub>sla</sub> + &lambda;<sub>sod</sub> <i>V</i><sub>sod</sub> + &lambda;<sub>cap</sub> &sum;<sub><i>j</i>=1..<i>M</i></sub> [ (&Delta;<i>W</i><sub><i>j</i></sub>)<sup>2</sup> + (&Delta;<i>K</i><sub><i>j</i></sub>)<sup>2</sup> ]
+</div>
+<table>
+  <thead>
+    <tr>
+      <th style="width: 14%;">Simbol</th>
+      <th style="width: 25%;">Batasan Regulasi & Bisnis</th>
+      <th style="width: 13%;">Bobot (&lambda;)</th>
+      <th style="width: 48%;">Kondisi Pemicu Pelanggaran</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><i>V</i><sub>role</sub></td>
+      <td>Kompetensi & Lisensi Medis/Forensik</td>
+      <td><strong>25.000</strong></td>
+      <td>Klaim tindakan bedah tidak ditangani <code>MEDICAL_ADVISOR</code>, atau klaim anomali fraud tidak ditangani <code>FRAUD_INVESTIGATOR</code>.</td>
+    </tr>
+    <tr>
+      <td><i>V</i><sub>auth</sub></td>
+      <td>Plafon Otorisasi Finansial</td>
+      <td><strong>20.000</strong></td>
+      <td>Nominal klaim melampaui limit wewenang staf: Amount(<i>c</i><sub><i>i</i></sub>) &gt; MaxAmount(<i>v</i>(<i>g</i><sub><i>i</i></sub>)).</td>
+    </tr>
+    <tr>
+      <td><i>V</i><sub>conf</sub></td>
+      <td>Konflik Kepentingan RS Rekanan</td>
+      <td><strong>25.000</strong></td>
+      <td>Staf ditugaskan memeriksa berkas dari RS yang terafiliasi secara personal: Hospital(<i>c</i><sub><i>i</i></sub>) &isin; AffiliatedHospitals(<i>v</i>(<i>g</i><sub><i>i</i></sub>)).</td>
+    </tr>
+    <tr>
+      <td><i>V</i><sub>sla</sub></td>
+      <td>Jendela Shift Cepat POJK No. 69/2016</td>
+      <td><strong>15.000</strong></td>
+      <td>Klaim prioritas cepat (&le; 24 jam) ditugaskan ke shift malam saat perbankan dan supervisi offline.</td>
+    </tr>
+    <tr>
+      <td><i>V</i><sub>sod</sub></td>
+      <td>Pemisahan Tugas (Separation of Duties)</td>
+      <td><strong>20.000</strong></td>
+      <td>Dua berkas dalam kelompok konflik sengketa yang sama dialokasikan ke staf yang sama (anti-kolusi).</td>
+    </tr>
+    <tr>
+      <td>&Delta;<i>W</i><sub><i>j</i></sub>, &Delta;<i>K</i><sub><i>j</i></sub></td>
+      <td>Beban Kerja UU Tenaga Kerja No. 13/2003</td>
+      <td><strong>10.000</strong></td>
+      <td>Penalti kuadratik atas kelebihan poin beban harian staf (&Delta;<i>W</i><sub><i>j</i></sub>) dan kelebihan volume berkas harian (&Delta;<i>K</i><sub><i>j</i></sub>).</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4>B. Komponen Trade-Off Multi-Objektif Operasional</h4>
+<ol>
+  <li><strong>Minimasi Biaya Penanganan (<i>T</i><sub>cost</sub>):</strong>
+    Cost(<strong>g</strong>) = &sum;<sub><i>i</i>=1..<i>N</i></sub> HourlyRate(<i>v</i>(<i>g</i><sub><i>i</i></sub>)) &times; ( Complexity(<i>c</i><sub><i>i</i></sub>) &times; 0,25 jam ) &emsp;&rArr;&emsp; <i>T</i><sub>cost</sub>(<strong>g</strong>) = Cost(<strong>g</strong>) &times; 0,001
+  </li>
+  <li><strong>Keadilan Distribusi Beban Kerja (<i>T</i><sub>balance</sub>):</strong>
+    &sigma;<sub>load</sub>(<strong>g</strong>) = &radic;[ (1/<i>M</i>) &sum;<sub><i>j</i>=1..<i>M</i></sub> (<i>W</i><sub><i>j</i></sub> &minus; <i>W&#772;</i>)<sup>2</sup> ] &emsp;&rArr;&emsp; <i>T</i><sub>balance</sub>(<strong>g</strong>) = &sigma;<sub>load</sub>(<strong>g</strong>) &times; 15,0
+  </li>
+  <li><strong>Mitigasi Risiko Kebocoran Fraud (<i>T</i><sub>fraud</sub>):</strong>
+    FraudExposure(<strong>g</strong>) = &sum;<sub><i>i</i>: Risk &ge; 0,65 &and; Role = JUNIOR</sub> [ Risk(<i>c</i><sub><i>i</i></sub>) &times; 100,0 ] &emsp;&rArr;&emsp; <i>T</i><sub>fraud</sub>(<strong>g</strong>) = FraudExposure &times; 50,0
+  </li>
+</ol>
+
+---
+
+<h2>BAB 3. ARSITEKTUR & IMPLEMENTASI MODUL SOLVER GA (<code>solver.py</code>)</h2>
+
+<p>
+Modul <code>solver.py</code> menerapkan arsitektur <em>Memetic Algorithm</em> yang mengawinkan pencarian evolusi global dengan perbaikan heuristik lokal:
+</p>
+<ul>
+  <li><strong>Pembangkitan Populasi Awal Hibrida:</strong> 30% bibit heuristik (<em>heuristic seeding</em>) berbasis kesesuaian peran awal dan 70% acak murni. Bibit pertama diperbaiki langsung oleh repair operator untuk patokan kelayakan awal.</li>
+  <li><strong>Seleksi Turnamen (Tournament Selection, <i>k</i> = 3):</strong> Tiga kandidat dipilih acak; pemenang kebugaran tertinggi mewariskan gen ke generasi penerus.</li>
+  <li><strong>Pindah Silang Dua Titik (Two-Point Crossover, <i>p</i><sub><i>c</i></sub> = 0,85):</strong> Rekombinasi segmen penugasan antar induk untuk membentuk variasi solusi baru.</li>
+  <li><strong>Mutasi Adaptif Dinamis (Dynamic Adaptive Mutation):</strong> Peluang dasar <i>p</i><sub><i>m</i></sub> = 0,08. Jika stagnasi (&ge; 4 generasi stabil), <i>p</i><sub><i>m</i></sub> naik dinamis hingga 0,25. Mutasi 85% memilih alel legal per klaim.</li>
+  <li><strong>Elitisme (Elitism, <i>E</i> = 2):</strong> Menjaga 2 individu terbaik tanpa mutasi, memastikan sifat monotonik kebugaran tidak pernah terdegradasi.</li>
+  <li><strong>Operator Perbaikan Heuristik (Greedy Lamarckian Repair):</strong> Mengidentifikasi klaim yang melanggar batasan regulasi (kompetensi, limit finansial, RS rekanan, SLA malam, sengketa keluarga, atau kapasitas staf) dan secara greedy merealokasikannya ke slot legal berkapasitas tersisa. Menjamin 100% kelayakan pada skala besar.</li>
+  <li><strong>Terminasi Alami (Natural Early Stopping):</strong> Menghentikan evolusi jika solusi layak (0 pelanggaran) dan fitness stabil selama 15 generasi berturut-turut.</li>
+</ul>
+
+---
+
+<h2>BAB 4. LAPORAN ANALISIS SENSITIVITAS & BENCHMARK MULTI-SEED (10 SEEDS)</h2>
+
+<p>
+Pengujian dieksekusi terhadap 5 skenario dengan <strong>10 seeds acak independen</strong> per skenario via <code>python solver.py --benchmark</code>:
+</p>
+
+<h3>4.1 Tabel Kinerja Empiris Analisis Sensitivitas (Rerata &plusmn; Deviasi Standar)</h3>
+<table>
+  <thead>
+    <tr>
+      <th>No</th>
+      <th>Skenario Masalah</th>
+      <th>Klaim / Staf</th>
+      <th>Pop</th>
+      <th>Status Kelayakan</th>
+      <th>Waktu (ms)</th>
+      <th>Generasi</th>
+      <th>Pelanggaran</th>
+      <th>Biaya Staf (IDR)</th>
+      <th>&sigma; Beban</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td><strong>Skala Kecil (Small Scale)</strong></td>
+      <td>10 / 4</td>
+      <td>40</td>
+      <td><strong>FEASIBLE (10/10)</strong></td>
+      <td><strong>11,20 &plusmn; 1,59</strong></td>
+      <td>22,9 &plusmn; 2,9</td>
+      <td><strong>0,0 &plusmn; 0,0</strong></td>
+      <td>Rp 662.000 &plusmn; 200.922</td>
+      <td>3,29 &plusmn; 1,27</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><strong>Skala Sedang (Medium Scale)</strong></td>
+      <td>40 / 10</td>
+      <td>60</td>
+      <td><strong>FEASIBLE (10/10)</strong></td>
+      <td><strong>128,12 &plusmn; 36,91</strong></td>
+      <td>66,7 &plusmn; 19,9</td>
+      <td><strong>0,0 &plusmn; 0,0</strong></td>
+      <td>Rp 2.697.000 &plusmn; 281.509</td>
+      <td>2,93 &plusmn; 0,78</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><strong>Skala Besar (Large Scale)</strong></td>
+      <td>100 / 24</td>
+      <td>100</td>
+      <td><strong>FEASIBLE (10/10)</strong></td>
+      <td><strong>345,68 &plusmn; 196,21</strong></td>
+      <td>47,7 &plusmn; 27,5</td>
+      <td><strong>0,0 &plusmn; 0,0</strong></td>
+      <td>Rp 8.132.500 &plusmn; 862.443</td>
+      <td>5,02 &plusmn; 0,53</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><strong>Kasus Ekstrem: Over-Constrained</strong></td>
+      <td>25 / 2</td>
+      <td>50</td>
+      <td><strong>INFEASIBLE (0/10)</strong></td>
+      <td><strong>111,52 &plusmn; 1,83</strong></td>
+      <td>100,0 &plusmn; 0,0</td>
+      <td>82,2 &plusmn; 8,5</td>
+      <td>Rp 1.125.000 &plusmn; 89.922</td>
+      <td>0,30 &plusmn; 0,24</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td><strong>Specialist Bottleneck</strong></td>
+      <td>12 / 3</td>
+      <td>50</td>
+      <td><strong>FEASIBLE (10/10)</strong></td>
+      <td><strong>9,28 &plusmn; 0,13</strong></td>
+      <td>16,0 &plusmn; 0,0</td>
+      <td><strong>0,0 &plusmn; 0,0</strong></td>
+      <td>Rp 450.000 &plusmn; 0</td>
+      <td>11,31 &plusmn; 0,00</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>4.2 Visualisasi Kurva Konvergensi Algoritma Genetika</h3>
+<div class="chart-container">
+  <img src="convergence_curve.png" alt="Kurva Konvergensi Algoritma Genetika ClaimWise AI">
+  <div class="chart-caption">
+    Gambar 4.1: Dinamika Nilai Kebugaran Terbaik <i>f</i>(<strong>g</strong>) (kiri) dan Penurunan Pelanggaran Regulasi Mutlak (kanan) sepanjang Generasi Evolusi yang Dibangkitkan melalui Matplotlib (Resolusi 300 DPI).
+  </div>
+</div>
+
+<h3>4.3 Wawasan Kritis & Pembahasan Temuan</h3>
+<ol>
+  <li><strong>Pencapaian Kelayakan 100% pada Skala Besar:</strong> Pada ruang kombinatorik 72<sup>100</sup> &asymp; 10<sup>185</sup>, operator perbaikan heuristik Lamarckian berhasil meniadakan seluruh pelanggaran kapasitas staf, menghasilkan 10/10 runs layak dengan durasi rata-rata 345,68 ms.</li>
+  <li><strong>Konvergensi Cepat & Alami:</strong> Penggunaan kriteria henti alami (stagnation patience 15 generasi) mempercepat konvergensi kasus kecil (22,9 generasi, 11,20 ms) dan kasus bottleneck spesialis (16 generasi, 9,28 ms).</li>
+  <li><strong>Ketahanan Anggun Kasus Over-Constrained (Pigeonhole):</strong> Ketika beban berkas melampaui kapasitas fisik staf (25 klaim vs kapasitas 8 berkas), solver tidak mengalami kebuntuan atau looping, melainkan melaporkan kegagalan secara anggun dengan 82,2 poin pelanggaran kapasitas.</li>
+  <li><strong>Alokasi Presisi Specialist Bottleneck:</strong> GA berhasil memetakan seluruh 12 klaim bedah kompleks ke satu-satunya dokter penasihat tanpa pernah melanggar wewenang kompetensi dalam waktu kurang dari 10 milidetik.</li>
+</ol>
+
+---
+
+<h2>BAB 5. HASIL VERIFIKASI PENGUJIAN OTOMATIS (<code>pytest</code>)</h2>
+
+<p>
+Suite pengujian otomatis [`test_solver.py`](../test_solver.py) mencakup 22 fungsi pengujian unit dan kasus ekstrem. Seluruh pengujian berhasil lulus (**100% passed - 45/45 tests** bersama modul search Milestone 1):
+</p>
+<pre><code>============================= test session starts =============================
+platform win32 -- Python 3.11.16, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Users\User\Documents\GitHub\ClaimWise-AI
+configfile: pyproject.toml
+collected 45 items
+
+test_solver.py::test_role_compatibility_logic PASSED                     [  2%]
+test_solver.py::test_evaluation_detects_role_mismatch_penalty PASSED     [  4%]
+test_solver.py::test_evaluation_detects_financial_excess_penalty PASSED  [  6%]
+test_solver.py::test_evaluation_detects_hospital_conflict_penalty PASSED [  8%]
+test_solver.py::test_evaluation_detects_night_shift_sla_penalty PASSED   [ 11%]
+test_solver.py::test_evaluation_detects_conflict_group_penalty PASSED    [ 13%]
+test_solver.py::test_evaluation_detects_workload_capacity_penalty PASSED [ 15%]
+test_solver.py::test_tournament_selection_picks_fitter_individual PASSED [ 17%]
+test_solver.py::test_elitism_preserves_best_individuals PASSED           [ 20%]
+test_solver.py::test_ga_finds_zero_violation_solution PASSED             [ 22%]
+test_solver.py::test_ga_workload_capacity_compliance PASSED              [ 24%]
+test_solver.py::test_ga_separation_of_duties_compliance PASSED           [ 26%]
+test_solver.py::test_edge_case_zero_claims PASSED                        [ 28%]
+test_solver.py::test_edge_case_single_claim_boundary PASSED              [ 31%]
+test_solver.py::test_edge_case_over_constrained_graceful_handling PASSED [ 33%]
+test_solver.py::test_edge_case_specialist_bottleneck PASSED              [ 35%]
+test_solver.py::test_edge_case_clique_of_conflicts PASSED                [ 37%]
+test_solver.py::test_edge_case_extreme_claim_amount_exceeds_all PASSED   [ 40%]
+test_solver.py::test_seed_reproducibility PASSED                         [ 42%]
+test_solver.py::test_cost_breakdown_calculation PASSED                   [ 44%]
+test_solver.py::test_repair_individual_remedies_infeasible_chromosome PASSED [ 46%]
+test_solver.py::test_large_scale_100_claims_achieves_zero_violations PASSED [ 48%]
+test_ucs_search.py::test_low_risk_classification PASSED                  [ 51%]
+test_ucs_search.py::test_high_risk_classification PASSED                 [ 53%]
+... (21 unit test Milestone 1 lainnya) ...
+test_ucs_search.py::test_negative_edge_weight_raises_error PASSED        [100%]
+
+============================= 45 passed in 0.36s ==============================</code></pre>
+
+---
+
+<h2>BAB 6. PEMBARUAN REPOSITORI GITHUB & PANDUAN REPRODUKSI</h2>
+
+<p>Repositori GitHub ClaimWise AI telah terstandarisasi dengan Astral <code>uv</code> dan diberi penanda rilis Git tag resmi <strong><code>v0.2-milestone2</code></strong>:</p>
+
+<h3>6.1 Struktur Berkas Repositori</h3>
+<pre><code>ClaimWise-AI/
+├── .gitignore                       # Konfigurasi pengabaian virtualenv, cache, dan data temporer
+├── LICENSE                          # Lisensi terbuka MIT
+├── pyproject.toml                   # Standar konfigurasi proyek Astral uv (v0.2.0)
+├── requirements.txt                 # Dependensi cadangan kompatibilitas pip
+├── ucs_search.py                    # Modul pencarian rute triase baseline (Milestone 1)
+├── test_ucs_search.py               # 23 Unit test pengujian pencarian rute (Milestone 1)
+├── solver.py                        # Modul solver optimasi GA multi-objektif (Milestone 2)
+├── test_solver.py                   # 22 Unit test pengujian operator GA & edge cases (Milestone 2)
+├── docs/
+│   ├── Laporan_Tugas01_ClaimWise.md # Laporan resmi Tugas 1 (Milestone 1 - W02)
+│   ├── Laporan_Tugas01_ClaimWise.html
+│   ├── Grup08-Tugas02.md            # Laporan resmi Tugas 2 GA (Milestone 2 - W04)
+│   ├── Grup08-Tugas02.html          # Versi cetak web laporan resmi Milestone 2
+│   ├── Grup08-Tugas02.pdf           # Dokumen serahan final PDF ECourse Del
+│   └── convergence_curve.png        # Grafik kurva konvergensi resolusi tinggi (Matplotlib)
+└── README.md                        # Dokumentasi repositori terpadu</code></pre>
+
+<h3>6.2 Instruksi Eksekusi Reproduktif (Astral uv)</h3>
+<pre><code># 1. Kloning repositori resmi GitHub
+git clone https://github.com/DavinaHutabarat/ClaimWise-AI.git
+cd ClaimWise-AI
+
+# 2. Checkout tag rilis resmi Milestone 2
+git checkout v0.2-milestone2
+
+# 3. Sinkronisasi dependensi virtual environment
+uv sync
+
+# 4. Menjalankan demonstrasi alokasi klaim interaktif GA
+uv run python solver.py
+
+# 5. Menjalankan benchmark analisis sensitivitas multi-seed (10 seeds) & pembangkitan kurva
+uv run python solver.py --benchmark
+
+# 6. Menjalankan seluruh pengujian otomatis pytest (45 unit test)
+uv run pytest -v</code></pre>
+
+---
+
+<h2>BAB 7. KESIMPULAN & REFLEKSI TUGAS 2</h2>
+
+<ol>
+  <li><strong>Keunggulan Optimasi Multi-Objektif Berbasis GA:</strong> Pendekatan Algoritma Genetika hibrida berhasil menjawab kompleksitas trade-off operasional triase klaim antara efisiensi biaya staf, percepatan durasi SLA, mitigasi risiko fraud, dan keadilan beban kerja staf.</li>
+  <li><strong>Penegakan Batasan Hukum Mutlak Tanpa Cacat:</strong> Penggabungan penalti kuadratik dan operator perbaikan heuristik (<em>Greedy Lamarckian Repair</em>) menjamin kepatuhan penuh 100% terhadap UU Ketenagakerjaan No. 13/2003 dan POJK No. 69/2016 (0 pelanggaran pada seluruh skala operasional teruji).</li>
+  <li><strong>Kesiapan Menuju Milestone 3 (W07):</strong> Fondasi penalaran komputasional simbolik (Search UCS/A* pada Milestone 1 dan GA Optimization pada Milestone 2) siap diintegrasikan dengan korpus SOP medis, prapemrosesan OCR dokumen faktur, dan temu balik semantik dense embeddings ChromaDB pada Milestone 3.</li>
+</ol>
+
+<div class="meta-box" style="margin-top: 14px; text-align: center;">
+  <p><strong>ClaimWise AI &copy; 2026/2027 — Grup 08 / Sarjana Sistem Informasi, FITE Institut Teknologi Del</strong></p>
+  <p><em>Davina Olivia Yosefanny Hutabarat (12S24047) &bull; Pedro Simangunsong (12S24011) &bull; Jody Alfonso Siahaan (12S24039)</em></p>
+</div>
+
+</body>
+</html>

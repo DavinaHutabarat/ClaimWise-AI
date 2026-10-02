@@ -1,26 +1,29 @@
 [project]
 name = "claimwise-ai"
 version = "0.2.0"
-description = "ClaimWise AI — Enterprise Copilot untuk Optimasi Triase Klaim & Alokasi Penjadwalan Verifikator Berbasis CSP & Algoritma Genetika"
+description = "ClaimWise AI — Enterprise Copilot untuk Optimasi Triase Klaim & Alokasi Penjadwalan Verifikator Berbasis Algoritma Genetika (Genetic Algorithm - GA) Multi-Objektif"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [
     { name = "Davina Olivia Yosefanny Hutabarat" },
     { name = "Pedro Simangunsong" },
-    { name = "Jodi" }
+    { name = "Jody Alfonso Siahaan" }
 ]
 keywords = [
     "artificial-intelligence",
-    "constraint-satisfaction-problem",
-    "ac-3-algorithm",
-    "backtracking-mrv",
     "genetic-algorithm",
+    "evolutionary-optimization",
+    "memetic-algorithm",
+    "multi-objective-optimization",
     "workforce-scheduling",
     "health-insurance",
     "state-space-search"
 ]
-dependencies = []
+dependencies = [
+    "matplotlib>=3.8.0",
+    "numpy>=1.26.0",
+]
 
 [dependency-groups]
 dev = [
