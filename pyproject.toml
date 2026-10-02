@@ -1,7 +1,7 @@
 [project]
 name = "claimwise-ai"
-version = "0.1.0"
-description = "ClaimWise AI — Enterprise Copilot untuk Optimasi Alur Triase dan Verifikasi Klaim Asuransi Kesehatan Berbasis Algoritma Search (UCS & A*)"
+version = "0.2.0"
+description = "ClaimWise AI — Enterprise Copilot untuk Optimasi Triase Klaim & Alokasi Penjadwalan Verifikator Berbasis CSP & Algoritma Genetika"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
@@ -10,7 +10,16 @@ authors = [
     { name = "Pedro Simangunsong" },
     { name = "Jodi" }
 ]
-keywords = ["artificial-intelligence", "uniform-cost-search", "astar-search", "insurance-claim", "health-insurance", "state-space-search"]
+keywords = [
+    "artificial-intelligence",
+    "constraint-satisfaction-problem",
+    "ac-3-algorithm",
+    "backtracking-mrv",
+    "genetic-algorithm",
+    "workforce-scheduling",
+    "health-insurance",
+    "state-space-search"
+]
 dependencies = []
 
 [dependency-groups]
